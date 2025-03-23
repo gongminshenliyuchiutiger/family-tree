@@ -5,152 +5,243 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>家庭樹狀圖繪製系統</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-        .container {
-            text-align: center;
-            background: #fff;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            box-sizing: border-box;
-        }
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
-        }
-        canvas {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background: #fff;
-            width: 100%;
-            height: auto;
-            max-width: 100%;
-        }
-        .button-group {
-            margin-bottom: 15px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-        }
-        button {
-            padding: 6px 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 14px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        #relationPanel, #statusPanel, #degreePanel, #addMemberPanel, #editMemberPanel, #hoverPanel, #downloadPanel {
-            display: none;
-            position: absolute;
-            background: #fff;
-            border: 1px solid #ccc;
-            padding: 15px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            user-select: none;
-            min-width: 200px;
-            z-index: 1000;
-        }
-        .panel-header {
-            position: relative;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .close-btn {
-            width: 20px;
-            height: 20px;
-            background-color: #2196F3;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 0;
-        }
-        .close-btn:hover {
-            background-color: #1976D2;
-        }
-        #relationPanel h3, #statusPanel h3, #degreePanel h3, #addMemberPanel h3, #editMemberPanel h3, #hoverPanel h3, #downloadPanel h3 {
-            margin: 0;
-            padding: 0;
-            color: #333;
-        }
-        #relationPanel button, #statusPanel button, #degreePanel button, #addMemberPanel button, #editMemberPanel button, #downloadPanel button {
-            margin: 5px;
-            background-color: #2196F3;
-        }
-        #relationPanel button:hover, #statusPanel button:hover, #degreePanel button:hover, #addMemberPanel button:hover, #editMemberPanel button:hover, #downloadPanel button:hover {
-            background-color: #1976D2;
-        }
-        #degreePanel p, #hoverPanel p {
-            margin: 5px 0;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-            color: #666;
-        }
-        .relation-label {
-            font-size: 12px;
-            font-weight: bold;
-            text-align: center;
-        }
-        #manualButton {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 40px;
-            height: 40px;
-            background-color: #2196F3;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            z-index: 2000;
-            transition: transform 0.3s, background-color 0.3s;
-        }
-        #manualButton a {
-            color: white;
-            text-decoration: none;
-            font-size: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-        }
-        #manualButton:hover {
-            background-color: #1976D2;
-            transform: scale(1.1);
-        }
-    </style>
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 10px;
+        box-sizing: border-box;
+    }
+    .container {
+        text-align: center;
+        background: #fff;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        box-sizing: border-box;
+    }
+    h1 {
+        color: #333;
+        margin-bottom: 20px;
+    }
+    canvas {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background: #fff;
+        width: 100%;
+        height: auto;
+        max-width: 100%;
+    }
+    .button-group {
+        margin-bottom: 15px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+    button {
+        padding: 6px 10px;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 14px;
+    }
+
+    /* 咖啡色按鈕 - 新增角色、編輯角色、刪除選擇 */
+    button:nth-child(1), /* 新增角色 */
+    button:nth-child(2), /* 編輯角色 */
+    button:nth-child(3)  /* 刪除選擇 */ {
+        background-color: #8B4513; /* 咖啡色 */
+    }
+    button:nth-child(1):hover,
+    button:nth-child(2):hover,
+    button:nth-child(3):hover {
+        background-color: #6F3710; /* 較深的咖啡色 */
+    }
+
+    /* 紅色按鈕 - 設定關係、設定狀態 */
+    button:nth-child(4), /* 設定關係 */
+    button:nth-child(5)  /* 設定狀態 */ {
+        background-color: #FF0000; /* 紅色 */
+    }
+    button:nth-child(4):hover,
+    button:nth-child(5):hover {
+        background-color: #CC0000; /* 較深的紅色 */
+    }
+
+    /* 橘色按鈕 - 關係親等 */
+    button:nth-child(6) { /* 關係親等 */
+        background-color: #FF8C00; /* 橘色 */
+    }
+    button:nth-child(6):hover {
+        background-color: #E07B00; /* 較深的橘色 */
+    }
+
+    /* 淺綠色按鈕 - 自動對齊 */
+    button:nth-child(7) { /* 自動對齊 */
+        background-color: #98FB98; /* 淺綠色 */
+    }
+    button:nth-child(7):hover {
+        background-color: #87E087; /* 較深的淺綠色 */
+    }
+
+    /* 深綠色按鈕 - 復原 */
+    button:nth-child(8) { /* 復原 */
+        background-color: #006400; /* 深綠色 */
+    }
+    button:nth-child(8):hover {
+        background-color: #004D00; /* 更深的深綠色 */
+    }
+
+    /* 深綠色按鈕 - 取消復原 */
+    button:nth-child(9) { /* 取消復原 */
+        background-color: #006400; /* 深綠色 */
+    }
+    button:nth-child(9):hover {
+        background-color: #004D00; /* 更深的深綠色 */
+    }
+
+    /* 藍色按鈕 - 顯示所有親屬關係 */
+    button:nth-child(10) { /* 顯示所有親屬關係 */
+        background-color: #0000FF; /* 藍色 */
+    }
+    button:nth-child(10):hover {
+        background-color: #0000CC; /* 較深的藍色 */
+    }
+
+    /* 下方的按鈕群組 */
+    .button-group:nth-child(4) button:nth-child(1) { /* 下載圖片 - 紫色 */
+        background-color: #800080; /* 紫色 */
+    }
+    .button-group:nth-child(4) button:nth-child(1):hover {
+        background-color: #660066; /* 較深的紫色 */
+    }
+
+    .button-group:nth-child(4) button:nth-child(2) { /* 匯出數據 - 粉紅色 */
+        background-color: #FF69B4; /* 粉紅色 */
+    }
+    .button-group:nth-child(4) button:nth-child(2):hover {
+        background-color: #FF55A3; /* 較深的粉紅色 */
+    }
+
+    .button-group:nth-child(4) button:nth-child(3) { /* 匯入數據 - 粉紅色 */
+        background-color: #FF69B4; /* 粉紅色 */
+    }
+    .button-group:nth-child(4) button:nth-child(3):hover {
+        background-color: #FF55A3; /* 較深的粉紅色 */
+    }
+
+    .button-group:nth-child(4) button:nth-child(4) { /* 清除畫布 - 灰色 */
+        background-color: #808080; /* 灰色 */
+    }
+    .button-group:nth-child(4) button:nth-child(4):hover {
+        background-color: #666666; /* 較深的灰色 */
+    }
+
+    #relationPanel, #statusPanel, #degreePanel, #addMemberPanel, #editMemberPanel, #hoverPanel, #downloadPanel, #importExportPanel {
+        display: none;
+        position: absolute;
+        background: #fff;
+        border: 1px solid #ccc;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        user-select: none;
+        min-width: 200px;
+        z-index: 1000;
+    }
+    .panel-header {
+        position: relative;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .close-btn {
+        width: 20px;
+        height: 20px;
+        background-color: #2196F3;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 12px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0;
+    }
+    .close-btn:hover {
+        background-color: #1976D2;
+    }
+    #relationPanel h3, #statusPanel h3, #degreePanel h3, #addMemberPanel h3, #editMemberPanel h3, #hoverPanel h3, #downloadPanel h3, #importExportPanel h3 {
+        margin: 0;
+        padding: 0;
+        color: #333;
+    }
+    #relationPanel button, #statusPanel button, #degreePanel button, #addMemberPanel button, #editMemberPanel button, #downloadPanel button, #importExportPanel button {
+        margin: 5px;
+        background-color: #2196F3;
+    }
+    #relationPanel button:hover, #statusPanel button:hover, #degreePanel button:hover, #addMemberPanel button:hover, #editMemberPanel button:hover, #downloadPanel button:hover, #importExportPanel button:hover {
+        background-color: #1976D2;
+    }
+    #degreePanel p, #hoverPanel p {
+        margin: 5px 0;
+    }
+    .footer {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 14px;
+        color: #666;
+    }
+    .relation-label {
+        font-size: 12px;
+        font-weight: bold;
+        text-align: center;
+    }
+    #manualButton {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        width: 40px;
+        height: 40px;
+        background-color: #2196F3;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        z-index: 2000;
+        transition: transform 0.3s, background-color 0.3s;
+    }
+    #manualButton a {
+        color: white;
+        text-decoration: none;
+        font-size: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+    }
+    #manualButton:hover {
+        background-color: #1976D2;
+        transform: scale(1.1);
+    }
+    #importFileInput {
+        margin-top: 10px;
+    }
+</style>
 </head>
 <body>
     <div class="container">
@@ -172,6 +263,8 @@
         <canvas id="familyTree"></canvas>
         <div class="button-group" style="margin-top: 15px;">
             <button onclick="startDownload()"><i class="fas fa-download"></i> 下載圖片</button>
+            <button onclick="exportData()"><i class="fas fa-file-export"></i> 匯出數據</button>
+            <button onclick="startImport()"><i class="fas fa-file-import"></i> 匯入數據</button>
             <button onclick="clearCanvas()"><i class="fas fa-broom"></i> 清除畫布</button>
         </div>
     </div>
@@ -256,12 +349,21 @@
         <button onclick="downloadImage(true)"><i class="fas fa-file-image"></i> 白色背景</button>
         <button onclick="downloadImage(false)"><i class="fas fa-file-image"></i> 透明背景</button>
     </div>
+    <div id="importExportPanel">
+        <div class="panel-header">
+            <h3>匯入數據</h3>
+            <button class="close-btn" onclick="closeImportExportPanel()">X</button>
+        </div>
+        <p>請選擇一個 .json 文件來匯入</p>
+        <input type="file" id="importFileInput" accept=".json">
+        <button onclick="importData()" style="margin-top: 10px;"><i class="fas fa-upload"></i> 確認匯入</button>
+    </div>
     <div class="footer">
         Copyright © Liyuchiutiger Gongminshen
     </div>
 
     <div id="manualButton">
-        <a href="https://www.canva.com/design/DAGhrNaOT1w/TwF2XQNCzpn6ec1GylD2gw/view?utm_content=DAGhrNaOT1w&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h4c61e5b699" target="_blank">
+        <a href="https://www.canva.com/design/DAGij_1PVuQ/bjg0Swb_6vjg6W8Q3rcbRg/view?utm_content=DAGij_1PVuQ&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hb3f2e0c369" target="_blank">
             <i class="fas fa-book"></i>
         </a>
     </div>
@@ -276,6 +378,7 @@
         const editMemberPanel = document.getElementById('editMemberPanel');
         const hoverPanel = document.getElementById('hoverPanel');
         const downloadPanel = document.getElementById('downloadPanel');
+        const importExportPanel = document.getElementById('importExportPanel');
         let members = [];
         let selectedMember = null;
         let secondSelectedList = [];
@@ -1279,6 +1382,67 @@
             downloadPanel.style.display = 'none';
         }
 
+        function exportData() {
+            const data = {
+                members: members.map(m => ({
+                    x: m.x,
+                    y: m.y,
+                    gender: m.gender,
+                    name: m.name,
+                    status: m.status,
+                    order: m.order,
+                    spouse: m.spouse ? members.indexOf(m.spouse) : null,
+                    parents: m.parents.map(p => members.indexOf(p)),
+                    children: m.children.map(c => members.indexOf(c)),
+                    olderSiblings: m.olderSiblings.map(s => members.indexOf(s)),
+                    youngerSiblings: m.youngerSiblings.map(s => members.indexOf(s))
+                })),
+                selectedMember: selectedMember ? members.indexOf(selectedMember) : null,
+                secondSelectedList: secondSelectedList.map(m => members.indexOf(m))
+            };
+
+            const jsonString = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'family_tree_data.json';
+            link.click();
+        }
+
+        function startImport() {
+            importExportPanel.style.display = 'block';
+            importExportPanel.style.left = `${canvas.offsetLeft + 50}px`;
+            importExportPanel.style.top = `${canvas.offsetTop + 50}px`;
+            document.getElementById('importFileInput').value = '';
+        }
+
+        function importData() {
+            const fileInput = document.getElementById('importFileInput');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('請選擇一個文件！');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    saveState(); // 保存當前狀態以便復原
+                    restoreState(data);
+                    closeImportExportPanel();
+                } catch (error) {
+                    alert('匯入失敗：無效的 JSON 文件！');
+                    console.error('匯入錯誤:', error);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function closeImportExportPanel() {
+            importExportPanel.style.display = 'none';
+        }
+
         function clearCanvas() {
             saveState();
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1352,6 +1516,7 @@
         makeDraggable(addMemberPanel);
         makeDraggable(editMemberPanel);
         makeDraggable(downloadPanel);
+        makeDraggable(importExportPanel);
 
         canvas.addEventListener('mousedown', (e) => {
             const rect = canvas.getBoundingClientRect();
@@ -1402,6 +1567,7 @@
                     closeStatusPanel();
                     closeDegreePanel();
                     closeDownloadPanel();
+                    closeImportExportPanel();
                 }
             }
             drawTree();
