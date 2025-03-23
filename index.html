@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家庭樹狀圖繪製系統</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .container {
+            text-align: center;
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #fff;
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+        }
+        .button-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        button {
+            padding: 6px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #relationPanel, #statusPanel, #degreePanel, #addMemberPanel, #editMemberPanel, #hoverPanel, #downloadPanel {
+            display: none;
+            position: absolute;
+            background: #fff;
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            user-select: none;
+            min-width: 200px;
+            z-index: 1000;
+        }
+        .panel-header {
+            position: relative;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .close-btn {
+            width: 20px;
+            height: 20px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+        }
+        .close-btn:hover {
+            background-color: #1976D2;
+        }
+        #relationPanel h3, #statusPanel h3, #degreePanel h3, #addMemberPanel h3, #editMemberPanel h3, #hoverPanel h3, #downloadPanel h3 {
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        #relationPanel button, #statusPanel button, #degreePanel button, #addMemberPanel button, #editMemberPanel button, #downloadPanel button {
+            margin: 5px;
+            background-color: #2196F3;
+        }
+        #relationPanel button:hover, #statusPanel button:hover, #degreePanel button:hover, #addMemberPanel button:hover, #editMemberPanel button:hover, #downloadPanel button:hover {
+            background-color: #1976D2;
+        }
+        #degreePanel p, #hoverPanel p {
+            margin: 5px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        .relation-label {
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+        }
+        #manualButton {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background-color: #2196F3;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 2000;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+        #manualButton a {
+            color: white;
+            text-decoration: none;
+            font-size: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+        #manualButton:hover {
+            background-color: #1976D2;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>家庭樹狀圖繪製系統</h1>
+        <div class="button-group">
+            <button onclick="addMember()"><i class="fas fa-user-plus"></i> 新增角色</button>
+            <button onclick="editSelected()"><i class="fas fa-edit"></i> 編輯角色</button>
+            <button onclick="deleteSelected()"><i class="fas fa-trash"></i> 刪除選擇</button>
+            <button onclick="startSetRelation()"><i class="fas fa-link"></i> 設定關係</button>
+            <button onclick="setStatus()"><i class="fas fa-cog"></i> 設定狀態</button>
+            <button onclick="startCalculateRelationDegree()"><i class="fas fa-users"></i> 關係親等</button>
+            <button onclick="autoAlign()"><i class="fas fa-align-center"></i> 自動對齊</button>
+            <button onclick="undo()"><i class="fas fa-undo"></i> 復原</button>
+            <button onclick="redo()"><i class="fas fa-redo"></i> 取消復原</button>
+            <button id="showRelationButton" onclick="toggleShowRelations()">
+                <i class="fas fa-eye"></i> 顯示所有親屬關係
+            </button>
+        </div>
+        <canvas id="familyTree"></canvas>
+        <div class="button-group" style="margin-top: 15px;">
+            <button onclick="startDownload()"><i class="fas fa-download"></i> 下載圖片</button>
+            <button onclick="clearCanvas()"><i class="fas fa-broom"></i> 清除畫布</button>
+        </div>
+    </div>
+    <div id="relationPanel">
+        <div class="panel-header">
+            <h3>設定關係</h3>
+            <button class="close-btn" onclick="closeRelationPanel()">X</button>
+        </div>
+        <p>已選擇：<span id="firstSelected"></span></p>
+        <p>將其設為：<span id="secondSelected"></span> 的</p>
+        <button onclick="setAsSpouse()"><i class="fas fa-heart"></i> 配偶</button>
+        <button onclick="setAsParent()"><i class="fas fa-user-friends"></i> 父母</button>
+        <button onclick="setAsChild()"><i class="fas fa-baby"></i> 子女</button>
+        <button onclick="setAsOlderSibling()"><i class="fas fa-user-graduate"></i> 兄姐</button>
+        <button onclick="setAsYoungerSibling()"><i class="fas fa-child"></i> 弟妹</button>
+    </div>
+    <div id="statusPanel">
+        <div class="panel-header">
+            <h3>設定狀態</h3>
+            <button class="close-btn" onclick="closeStatusPanel()">X</button>
+        </div>
+        <p>已選擇：<span id="statusSelected"></span></p>
+        <button onclick="setStatusNormal()"><i class="fas fa-check-circle"></i> 正常</button>
+        <button onclick="setStatusDead()"><i class="fas fa-skull-crossbones"></i> 死亡</button>
+        <button onclick="setStatusDivorced()"><i class="fas fa-heart-broken"></i> 離婚</button>
+        <button onclick="setStatusMissing()"><i class="fas fa-question-circle"></i> 失蹤</button>
+    </div>
+    <div id="degreePanel">
+        <div class="panel-header">
+            <h3>關係親等</h3>
+            <button class="close-btn" onclick="closeDegreePanel()">X</button>
+        </div>
+        <p>第一位：<span id="degreeFirstSelected"></span></p>
+        <p>第二位：<span id="degreeSecondSelected"></span></p>
+        <p>親等：<span id="degreeResult"></span></p>
+    </div>
+    <div id="addMemberPanel">
+        <div class="panel-header">
+            <h3 id="addMemberTitle">新增角色</h3>
+            <button class="close-btn" onclick="closeAddMemberPanel()">X</button>
+        </div>
+        <div>
+            <label for="addMemberName">姓名：</label>
+            <input type="text" id="addMemberName" placeholder="請輸入姓名">
+        </div>
+        <div style="margin-top: 10px;">
+            <label>性別：</label>
+            <input type="radio" id="addMale" name="gender" value="male" checked> 男性
+            <input type="radio" id="addFemale" name="gender" value="female"> 女性
+        </div>
+        <div style="margin-top: 15px; text-align: center;">
+            <button onclick="confirmAddMember()"><i class="fas fa-check"></i> 確認</button>
+        </div>
+    </div>
+    <div id="editMemberPanel">
+        <div class="panel-header">
+            <h3>編輯角色</h3>
+            <button class="close-btn" onclick="closeEditMemberPanel()">X</button>
+        </div>
+        <div>
+            <label for="editMemberName">姓名：</label>
+            <input type="text" id="editMemberName">
+        </div>
+        <div style="margin-top: 10px;">
+            <label>性別：</label>
+            <input type="radio" id="editMale" name="editGender" value="male"> 男性
+            <input type="radio" id="editFemale" name="editGender" value="female"> 女性
+        </div>
+        <div style="margin-top: 15px; text-align: center;">
+            <button onclick="confirmEditMember()"><i class="fas fa-check"></i> 確認</button>
+        </div>
+    </div>
+    <div id="hoverPanel">
+        <h3>關係資訊</h3>
+        <div id="hoverRelations"></div>
+    </div>
+    <div id="downloadPanel">
+        <div class="panel-header">
+            <h3>選擇下載背景</h3>
+            <button class="close-btn" onclick="closeDownloadPanel()">X</button>
+        </div>
+        <button onclick="downloadImage(true)"><i class="fas fa-file-image"></i> 白色背景</button>
+        <button onclick="downloadImage(false)"><i class="fas fa-file-image"></i> 透明背景</button>
+    </div>
+    <div class="footer">
+        Copyright © Liyuchiutiger Gongminshen
+    </div>
+
+    <div id="manualButton">
+        <a href="https://www.canva.com/design/DAGhrNaOT1w/TwF2XQNCzpn6ec1GylD2gw/view?utm_content=DAGhrNaOT1w&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h4c61e5b699" target="_blank">
+            <i class="fas fa-book"></i>
+        </a>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('familyTree');
+        const ctx = canvas.getContext('2d');
+        const relationPanel = document.getElementById('relationPanel');
+        const statusPanel = document.getElementById('statusPanel');
+        const degreePanel = document.getElementById('degreePanel');
+        const addMemberPanel = document.getElementById('addMemberPanel');
+        const editMemberPanel = document.getElementById('editMemberPanel');
+        const hoverPanel = document.getElementById('hoverPanel');
+        const downloadPanel = document.getElementById('downloadPanel');
+        let members = [];
+        let selectedMember = null;
+        let secondSelectedList = [];
+        let dragging = false;
+        let settingRelation = false;
+        let calculatingDegree = false;
+        let history = [];
+        let redoStack = [];
+        let lastHovered = null;
+        let showingRelations = false;
+
+        function resizeCanvas() {
+            const container = document.querySelector('.container');
+            const width = container.clientWidth - 30;
+            const scale = window.devicePixelRatio || 2;
+            canvas.width = width * scale;
+            canvas.style.width = `${width}px`;
+            const initialHeight = Math.max(400, window.innerHeight * 0.6);
+            canvas.height = initialHeight * scale;
+            canvas.style.height = `${initialHeight}px`;
+            ctx.scale(scale, scale);
+            drawTree();
+        }
+
+        window.addEventListener('load', resizeCanvas);
+        window.addEventListener('resize', resizeCanvas);
+
+        class FamilyMember {
+            constructor(x, y, gender, name) {
+                this.x = x;
+                this.y = y;
+                this.gender = gender;
+                this.name = name;
+                this.spouse = null;
+                this.parents = [];
+                this.children = [];
+                this.olderSiblings = [];
+                this.youngerSiblings = [];
+                this.status = 'normal';
+                this.order = members.length;
+            }
+
+            draw(context) {
+                context.beginPath();
+                context.lineWidth = 1;
+                
+                if (this.status === 'divorced' || this.status === 'missing') {
+                    context.setLineDash([5, 5]);
+                } else {
+                    context.setLineDash([]);
+                }
+
+                if (this.gender === 'male') {
+                    context.rect(this.x - 20, this.y - 20, 40, 40);
+                } else {
+                    context.arc(this.x, this.y, 20, 0, Math.PI * 2);
+                }
+                context.stroke();
+
+                if (this.status === 'dead') {
+                    context.beginPath();
+                    context.moveTo(this.x - 15, this.y - 15);
+                    context.lineTo(this.x + 15, this.y + 15);
+                    context.moveTo(this.x + 15, this.y - 15);
+                    context.lineTo(this.x - 15, this.y + 15);
+                    context.stroke();
+                }
+
+                context.setLineDash([]);
+                context.font = '14px Arial';
+                context.fillStyle = 'black';
+                context.fillText(this.name, this.x - 15, this.y + 35);
+
+                if (showingRelations && selectedMember === this) {
+                    this.drawRelations(context);
+                }
+            }
+
+            drawRelations(context) {
+                const relationMap = this.getRelationMap();
+                context.font = '12px Arial';
+
+                relationMap.forEach((relation, member) => {
+                    if (member === this) return;
+
+                    if (relation === '配偶') {
+                        context.strokeStyle = '#ff8000';
+                        member.draw(context);
+                        context.fillStyle = '#ff8000';
+                        context.fillText('配偶', member.x - 15, member.y + 50);
+                    } else if (relation.includes('直系血親')) {
+                        context.strokeStyle = 'blue';
+                        member.draw(context);
+                        context.fillStyle = 'blue';
+                        context.fillText('直系血親', member.x - 15, member.y + 50);
+                    } else if (relation.includes('旁系血親')) {
+                        context.strokeStyle = 'green';
+                        member.draw(context);
+                        context.fillStyle = 'green';
+                        context.fillText('旁系血親', member.x - 15, member.y + 50);
+                    } else if (relation.includes('姻親')) {
+                        context.strokeStyle = '#ff69b4';
+                        member.draw(context);
+                        context.fillStyle = '#ff69b4';
+                        let displayRelation;
+                        if (relation.includes('姻親(血配)')) {
+                            displayRelation = '姻親(血配)';
+                        } else if (relation.includes('姻親(配血)')) {
+                            displayRelation = '姻親(配血)';
+                        } else if (relation.includes('姻親(配血配)')) {
+                            displayRelation = '姻親(配血配)';
+                        } else {
+                            displayRelation = '姻親';
+                        }
+                        context.fillText(displayRelation, member.x - 15, member.y + 50);
+                    }
+                });
+
+                context.strokeStyle = 'black';
+                context.fillStyle = 'black';
+            }
+
+            drawLines(context, drawnSpouses, drawnChildren) {
+                if (this.spouse && !drawnSpouses.has(this.spouse)) {
+                    context.beginPath();
+                    context.lineWidth = 3;
+                    const spouseY = Math.max(this.y, this.spouse.y);
+
+                    let startX, endX;
+                    if (this.x < this.spouse.x) {
+                        startX = this.x + 20;
+                        endX = this.spouse.x - 20;
+                    } else {
+                        startX = this.x - 20;
+                        endX = this.spouse.x + 20;
+                    }
+
+                    if (this.status === 'divorced' || this.spouse.status === 'divorced') {
+                        context.setLineDash([5, 5]);
+                    }
+                    context.moveTo(startX, spouseY);
+                    context.lineTo(endX, spouseY);
+                    context.stroke();
+                    context.lineWidth = 1;
+                    context.setLineDash([]);
+                    drawnSpouses.add(this);
+                    drawnSpouses.add(this.spouse);
+                }
+
+                if (this.parents.length > 0 && !drawnChildren.has(this)) {
+                    const hasSpouseParent = this.parents.some(p => p.spouse && this.parents.includes(p.spouse));
+                    if (hasSpouseParent) {
+                        const parentPair = this.parents.filter(p => p.spouse && this.parents.includes(p.spouse));
+                        if (parentPair.length === 2) {
+                            const parent1 = parentPair[0];
+                            const parent2 = parent1.spouse;
+                            const midX = (parent1.x + parent2.x) / 2;
+                            const parentBottomY = Math.max(parent1.y, parent2.y) + 20;
+
+                            const siblings = parent1.children.filter(c => c.parents.includes(parent2));
+                            const siblingMidY = Math.min(...siblings.map(c => c.y - 20));
+                            const turnY = (parentBottomY + siblingMidY) / 2;
+
+                            context.beginPath();
+                            context.moveTo(midX, parentBottomY);
+                            context.lineTo(midX, turnY);
+                            context.stroke();
+
+                            context.beginPath();
+                            context.moveTo(midX, turnY);
+                            context.lineTo(this.x, turnY);
+                            context.lineTo(this.x, this.y - 20);
+                            context.stroke();
+
+                            drawnChildren.add(this);
+                        }
+                    } else {
+                        this.parents.forEach(parent => {
+                            const parentBottomY = parent.y + 20;
+                            const turnY = (parentBottomY + (this.y - 20)) / 2;
+
+                            context.beginPath();
+                            context.moveTo(parent.x, parentBottomY);
+                            context.lineTo(parent.x, turnY);
+                            context.lineTo(this.x, turnY);
+                            context.lineTo(this.x, this.y - 20);
+                            context.stroke();
+                        });
+                        drawnChildren.add(this);
+                    }
+                }
+
+                if (this.children.length > 0) {
+                    if (this.spouse) {
+                        const commonChildren = this.children.filter(child => child.parents.includes(this.spouse));
+                        if (commonChildren.length > 0) {
+                            const midX = (this.x + this.spouse.x) / 2;
+                            const midY = Math.max(this.y, this.spouse.y) + 20;
+                            const verticalMidY = midY + ((commonChildren.reduce((max, child) => Math.max(max, child.y), 0) - midY) / 2);
+
+                            context.beginPath();
+                            context.moveTo(midX, midY);
+                            context.lineTo(midX, verticalMidY);
+                            context.stroke();
+
+                            commonChildren.forEach(child => {
+                                if (!drawnChildren.has(child)) {
+                                    context.beginPath();
+                                    context.moveTo(midX, verticalMidY);
+                                    context.lineTo(child.x, verticalMidY);
+                                    context.lineTo(child.x, child.y - 20);
+                                    context.stroke();
+                                    drawnChildren.add(child);
+                                }
+                            });
+                        }
+
+                        const soloChildren = this.children.filter(child => !child.parents.includes(this.spouse));
+                        soloChildren.forEach(child => {
+                            if (!drawnChildren.has(child)) {
+                                const parentY = this.y + 20;
+                                const childY = child.y - 20;
+                                const midY = (parentY + childY) / 2;
+
+                                context.beginPath();
+                                context.moveTo(this.x, parentY);
+                                context.lineTo(this.x, midY);
+                                context.lineTo(child.x, midY);
+                                context.lineTo(child.x, childY);
+                                context.stroke();
+                                drawnChildren.add(child);
+                            }
+                        });
+                    } else {
+                        this.children.forEach(child => {
+                            if (!drawnChildren.has(child)) {
+                                const parentY = this.y + 20;
+                                const childY = child.y - 20;
+                                const midY = (parentY + childY) / 2;
+
+                                context.beginPath();
+                                context.moveTo(this.x, parentY);
+                                context.lineTo(this.x, midY);
+                                context.lineTo(child.x, midY);
+                                context.lineTo(child.x, childY);
+                                context.stroke();
+                                drawnChildren.add(child);
+                            }
+                        });
+                    }
+                }
+            }
+
+            isInside(x, y) {
+                const scale = window.devicePixelRatio || 2;
+                return Math.abs(this.x - x) < 25 / scale && Math.abs(this.y - y) < 25 / scale;
+            }
+
+            getLineHitbox(startX, startY, endX, endY, clickX, clickY) {
+                const tolerance = 10;
+                if (startX === endX) {
+                    return Math.abs(clickX - startX) < tolerance && clickY >= Math.min(startY, endY) && clickY <= Math.max(startY, endY);
+                } else if (startY === endY) {
+                    return Math.abs(clickY - startY) < tolerance && clickX >= Math.min(startX, endX) && clickX <= Math.max(startX, endX);
+                }
+                return false;
+            }
+
+            getRelationMap() {
+                const relationMap = new Map();
+                members.forEach(m => {
+                    const relation = calculateRelationDegree(this, m);
+                    relationMap.set(m, relation);
+                });
+                return relationMap;
+            }
+        }
+
+        function saveState() {
+            const state = {
+                members: members.map(m => ({
+                    x: m.x,
+                    y: m.y,
+                    gender: m.gender,
+                    name: m.name,
+                    status: m.status,
+                    order: m.order,
+                    spouse: m.spouse ? members.indexOf(m.spouse) : null,
+                    parents: m.parents.map(p => members.indexOf(p)),
+                    children: m.children.map(c => members.indexOf(c)),
+                    olderSiblings: m.olderSiblings.map(s => members.indexOf(s)),
+                    youngerSiblings: m.youngerSiblings.map(s => members.indexOf(s))
+                })),
+                selectedMember: selectedMember ? members.indexOf(selectedMember) : null,
+                secondSelectedList: secondSelectedList.map(m => members.indexOf(m))
+            };
+            history.push(state);
+            redoStack = [];
+            if (history.length > 50) history.shift();
+        }
+
+        function restoreState(state) {
+            members = state.members.map(m => {
+                const member = new FamilyMember(m.x, m.y, m.gender, m.name);
+                member.status = m.status;
+                member.order = m.order;
+                return member;
+            });
+
+            state.members.forEach((m, i) => {
+                if (m.spouse !== null) members[i].spouse = members[m.spouse];
+                members[i].parents = m.parents.map(idx => members[idx]);
+                members[i].children = m.children.map(idx => members[idx]);
+                members[i].olderSiblings = m.olderSiblings.map(idx => members[idx]);
+                members[i].youngerSiblings = m.youngerSiblings.map(idx => members[idx]);
+            });
+
+            selectedMember = state.selectedMember !== null ? members[state.selectedMember] : null;
+            secondSelectedList = state.secondSelectedList.map(idx => members[idx]);
+            drawTree();
+        }
+
+        function undo() {
+            if (history.length === 0) return;
+            const currentState = {
+                members: members.map(m => ({
+                    x: m.x,
+                    y: m.y,
+                    gender: m.gender,
+                    name: m.name,
+                    status: m.status,
+                    order: m.order,
+                    spouse: m.spouse ? members.indexOf(m.spouse) : null,
+                    parents: m.parents.map(p => members.indexOf(p)),
+                    children: m.children.map(c => members.indexOf(c)),
+                    olderSiblings: m.olderSiblings.map(s => members.indexOf(s)),
+                    youngerSiblings: m.youngerSiblings.map(s => members.indexOf(s))
+                })),
+                selectedMember: selectedMember ? members.indexOf(selectedMember) : null,
+                secondSelectedList: secondSelectedList.map(m => members.indexOf(m))
+            };
+            redoStack.push(currentState);
+            const previousState = history.pop();
+            restoreState(previousState);
+        }
+
+        function redo() {
+            if (redoStack.length === 0) return;
+            const currentState = {
+                members: members.map(m => ({
+                    x: m.x,
+                    y: m.y,
+                    gender: m.gender,
+                    name: m.name,
+                    status: m.status,
+                    order: m.order,
+                    spouse: m.spouse ? members.indexOf(m.spouse) : null,
+                    parents: m.parents.map(p => members.indexOf(p)),
+                    children: m.children.map(c => members.indexOf(c)),
+                    olderSiblings: m.olderSiblings.map(s => members.indexOf(s)),
+                    youngerSiblings: m.youngerSiblings.map(s => members.indexOf(s))
+                })),
+                selectedMember: selectedMember ? members.indexOf(selectedMember) : null,
+                secondSelectedList: secondSelectedList.map(m => members.indexOf(m))
+            };
+            history.push(currentState);
+            const nextState = redoStack.pop();
+            restoreState(nextState);
+        }
+
+        function addMember() {
+            document.getElementById('addMemberTitle').textContent = '新增角色';
+            document.getElementById('addMemberName').value = '';
+            document.getElementById('addMale').checked = true;
+            document.getElementById('addFemale').checked = false;
+            const panel = document.getElementById('addMemberPanel');
+            panel.style.display = 'block';
+            panel.style.left = `${canvas.offsetLeft + 50}px`;
+            panel.style.top = `${canvas.offsetTop + 50}px`;
+        }
+
+        function confirmAddMember() {
+            const name = document.getElementById('addMemberName').value.trim();
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+            if (name) {
+                saveState();
+                const newX = findNonOverlappingX(50);
+                members.push(new FamilyMember(newX, 50, gender, name));
+                closeAddMemberPanel();
+                drawTree();
+            } else {
+                alert('請輸入姓名！');
+            }
+        }
+
+        function closeAddMemberPanel() {
+            document.getElementById('addMemberPanel').style.display = 'none';
+        }
+
+        function findNonOverlappingX(targetY) {
+            const memberWidth = 80;
+            let newX = 50;
+            let overlapping = true;
+
+            while (overlapping) {
+                overlapping = members.some(m => Math.abs(m.x - newX) < memberWidth && Math.abs(m.y - targetY) < 40);
+                if (overlapping) newX += memberWidth;
+                if (newX > canvas.width / (window.devicePixelRatio || 2) - memberWidth) newX = 50;
+            }
+            return newX;
+        }
+
+        function editSelected() {
+            if (selectedMember) {
+                document.getElementById('editMemberName').value = selectedMember.name;
+                document.getElementById('editMale').checked = selectedMember.gender === 'male';
+                document.getElementById('editFemale').checked = selectedMember.gender === 'female';
+                const panel = document.getElementById('editMemberPanel');
+                panel.style.display = 'block';
+                panel.style.left = `${canvas.offsetLeft + 50}px`;
+                panel.style.top = `${canvas.offsetTop + 50}px`;
+            } else {
+                alert('請先選擇一個成員');
+            }
+        }
+
+        function confirmEditMember() {
+            const newName = document.getElementById('editMemberName').value.trim();
+            const newGender = document.querySelector('input[name="editGender"]:checked').value;
+            const oldName = selectedMember.name;
+            const oldGender = selectedMember.gender;
+
+            if (newName && (newName !== oldName || newGender !== oldGender)) {
+                saveState();
+                selectedMember.name = newName;
+                selectedMember.gender = newGender;
+                closeEditMemberPanel();
+                drawTree();
+            } else if (!newName) {
+                alert('姓名不能為空！');
+            } else {
+                closeEditMemberPanel();
+            }
+        }
+
+        function closeEditMemberPanel() {
+            document.getElementById('editMemberPanel').style.display = 'none';
+        }
+
+        function deleteSelected() {
+            if (selectedMember) {
+                saveState();
+                members = members.filter(m => m !== selectedMember);
+                members.forEach(m => {
+                    if (m.spouse === selectedMember) m.spouse = null;
+                    m.parents = m.parents.filter(p => p !== selectedMember);
+                    m.children = m.children.filter(c => c !== selectedMember);
+                    m.olderSiblings = m.olderSiblings.filter(s => s !== selectedMember);
+                    m.youngerSiblings = m.youngerSiblings.filter(s => s !== selectedMember);
+                });
+                selectedMember = null;
+                drawTree();
+            } else {
+                alert('請先選擇一個成員');
+            }
+        }
+
+        function startSetRelation() {
+            if (selectedMember) {
+                settingRelation = true;
+                secondSelectedList = [];
+                document.getElementById('firstSelected').textContent = selectedMember.name;
+                document.getElementById('secondSelected').textContent = '（請點選多個成員，按住 Ctrl 可多選）';
+                relationPanel.style.display = 'block';
+                relationPanel.style.left = `${canvas.offsetLeft + 50}px`;
+                relationPanel.style.top = `${canvas.offsetTop + 50}px`;
+            } else {
+                alert('請先選擇一個成員');
+            }
+        }
+
+        function setAsSpouse() {
+            if (secondSelectedList.length === 1) {
+                saveState();
+                const target = secondSelectedList[0];
+                selectedMember.spouse = target;
+                target.spouse = selectedMember;
+                closeRelationPanel();
+                drawTree();
+            } else {
+                alert('配偶關係只能設定一個成員');
+            }
+        }
+
+        function setAsParent() {
+            if (secondSelectedList.length > 0) {
+                saveState();
+                secondSelectedList.forEach(target => {
+                    if (target.parents.length < 2) {
+                        target.parents.push(selectedMember);
+                        selectedMember.children.push(target);
+                    } else {
+                        console.warn(`${target.name} 已有兩個父母，無法新增`);
+                    }
+                });
+                closeRelationPanel();
+                drawTree();
+            } else {
+                alert('請至少選擇一個成員作為子女');
+            }
+        }
+
+        function setAsChild() {
+            if (secondSelectedList.length > 0 && selectedMember.parents.length + secondSelectedList.length <= 2) {
+                saveState();
+                secondSelectedList.forEach(target => {
+                    selectedMember.parents.push(target);
+                    target.children.push(selectedMember);
+                });
+                closeRelationPanel();
+                drawTree();
+            } else {
+                alert('選擇的父母數量超過限制（最多2個）或未選擇成員');
+            }
+        }
+
+        function setAsOlderSibling() {
+            if (secondSelectedList.length > 0) {
+                saveState();
+                secondSelectedList.forEach(target => {
+                    selectedMember.youngerSiblings.push(target);
+                    target.olderSiblings.push(selectedMember);
+                    if (target.parents.length > 0) {
+                        selectedMember.parents = [...target.parents];
+                        target.parents.forEach(p => p.children.push(selectedMember));
+                    }
+                });
+                closeRelationPanel();
+                drawTree();
+            } else {
+                alert('請至少選擇一個成員作為弟妹');
+            }
+        }
+
+        function setAsYoungerSibling() {
+            if (secondSelectedList.length > 0) {
+                saveState();
+                secondSelectedList.forEach(target => {
+                    selectedMember.olderSiblings.push(target);
+                    target.youngerSiblings.push(selectedMember);
+                    if (target.parents.length > 0) {
+                        selectedMember.parents = [...target.parents];
+                        target.parents.forEach(p => p.children.push(selectedMember));
+                    }
+                });
+                closeRelationPanel();
+                drawTree();
+            } else {
+                alert('請至少選擇一個成員作為兄姐');
+            }
+        }
+
+        function closeRelationPanel() {
+            relationPanel.style.display = 'none';
+            settingRelation = false;
+            secondSelectedList = [];
+            drawTree();
+        }
+
+        function setStatus() {
+            if (selectedMember) {
+                document.getElementById('statusSelected').textContent = selectedMember.name;
+                statusPanel.style.display = 'block';
+                statusPanel.style.left = `${canvas.offsetLeft + 50}px`;
+                statusPanel.style.top = `${canvas.offsetTop + 50}px`;
+            } else {
+                alert('請先選擇一個成員');
+            }
+        }
+
+        function setStatusNormal() {
+            saveState();
+            selectedMember.status = 'normal';
+            closeStatusPanel();
+            drawTree();
+        }
+
+        function setStatusDead() {
+            saveState();
+            selectedMember.status = 'dead';
+            closeStatusPanel();
+            drawTree();
+        }
+
+        function setStatusDivorced() {
+            saveState();
+            selectedMember.status = 'divorced';
+            closeStatusPanel();
+            drawTree();
+        }
+
+        function setStatusMissing() {
+            saveState();
+            selectedMember.status = 'missing';
+            closeStatusPanel();
+            drawTree();
+        }
+
+        function closeStatusPanel() {
+            statusPanel.style.display = 'none';
+            drawTree();
+        }
+
+        function startCalculateRelationDegree() {
+            if (selectedMember) {
+                calculatingDegree = true;
+                secondSelectedList = [];
+                document.getElementById('degreeFirstSelected').textContent = selectedMember.name;
+                document.getElementById('degreeSecondSelected').textContent = '（請點選另一個成員）';
+                document.getElementById('degreeResult').textContent = '';
+                degreePanel.style.display = 'block';
+                degreePanel.style.left = `${canvas.offsetLeft + 50}px`;
+                degreePanel.style.top = `${canvas.offsetTop + 50}px`;
+            } else {
+                alert('請先選擇一個成員');
+            }
+        }
+
+        function closeDegreePanel() {
+            degreePanel.style.display = 'none';
+            calculatingDegree = false;
+            secondSelectedList = [];
+            drawTree();
+        }
+
+        function calculateRelationDegree(member1, member2) {
+            if (!member1 || !member2) return "無效成員";
+            if (member1 === member2) return "同一人，無親等";
+
+            if (member1.spouse === member2) {
+                return "配偶";
+            }
+
+            const directDegree = calculateDirectBloodDegree(member1, member2);
+            if (directDegree !== -1) {
+                return `${directDegree}親等直系血親`;
+            }
+
+            const collateralDegree = calculateCollateralBloodDegree(member1, member2);
+            if (collateralDegree !== -1) {
+                return `${collateralDegree}親等旁系血親`;
+            }
+
+            const affinityDegree = calculateAffinityDegree(member1, member2);
+            if (affinityDegree !== null) {
+                return affinityDegree;
+            }
+
+            if (member1.olderSiblings.includes(member2)) {
+                return "兄姐";
+            }
+            if (member1.youngerSiblings.includes(member2)) {
+                return "弟妹";
+            }
+
+            return "無親等關係";
+        }
+
+        function calculateDirectBloodDegree(member1, member2) {
+            function countGenerationsUp(start, target, depth = 0, visited = new Set()) {
+                if (!start || visited.has(start)) return -1;
+                visited.add(start);
+                if (start === target) return depth;
+                for (let parent of start.parents) {
+                    const result = countGenerationsUp(parent, target, depth + 1, visited);
+                    if (result !== -1) return result;
+                }
+                return -1;
+            }
+
+            function countGenerationsDown(start, target, depth = 0, visited = new Set()) {
+                if (!start || visited.has(start)) return -1;
+                visited.add(start);
+                if (start === target) return depth;
+                for (let child of start.children) {
+                    const result = countGenerationsDown(child, target, depth + 1, visited);
+                    if (result !== -1) return result;
+                }
+                return -1;
+            }
+
+            let degree = countGenerationsUp(member1, member2);
+            if (degree !== -1) return degree;
+            degree = countGenerationsDown(member1, member2);
+            if (degree !== -1) return degree;
+            return -1;
+        }
+
+        function calculateCollateralBloodDegree(member1, member2) {
+            function findCommonAncestor(member, ancestors = new Set(), visited = new Set()) {
+                if (!member || visited.has(member)) return;
+                visited.add(member);
+                ancestors.add(member);
+                if (member.parents) {
+                    for (let parent of member.parents) {
+                        findCommonAncestor(parent, ancestors, visited);
+                    }
+                }
+            }
+
+            const ancestors1 = new Set();
+            const ancestors2 = new Set();
+            findCommonAncestor(member1, ancestors1);
+            findCommonAncestor(member2, ancestors2);
+
+            for (let ancestor of ancestors1) {
+                if (ancestors2.has(ancestor)) {
+                    const degree1 = calculateDirectBloodDegree(member1, ancestor);
+                    const degree2 = calculateDirectBloodDegree(member2, ancestor);
+                    if (degree1 !== -1 && degree2 !== -1) {
+                        return degree1 + degree2;
+                    }
+                }
+            }
+            return -1;
+        }
+
+        function calculateAffinityDegree(member1, member2) {
+            if (!member1 || !member2) return null;
+
+            if (member2.spouse) {
+                const bloodDegree1 = calculateDirectBloodDegree(member1, member2.spouse) !== -1 
+                    ? calculateDirectBloodDegree(member1, member2.spouse) 
+                    : calculateCollateralBloodDegree(member1, member2.spouse);
+                if (bloodDegree1 !== -1) {
+                    return `${bloodDegree1}親等${bloodDegree1 === 1 ? '直系' : '旁系'}姻親(血配)`;
+                }
+            }
+
+            if (member1.spouse) {
+                const bloodDegree2 = calculateDirectBloodDegree(member1.spouse, member2) !== -1 
+                    ? calculateDirectBloodDegree(member1.spouse, member2) 
+                    : calculateCollateralBloodDegree(member1.spouse, member2);
+                if (bloodDegree2 !== -1) {
+                    return `${bloodDegree2}親等${bloodDegree2 === 1 ? '直系' : '旁系'}姻親(配血)`;
+                }
+            }
+
+            if (member1.spouse && member2.spouse) {
+                const bloodDegree3 = calculateDirectBloodDegree(member1.spouse, member2.spouse) !== -1 
+                    ? calculateDirectBloodDegree(member1.spouse, member2.spouse) 
+                    : calculateCollateralBloodDegree(member1.spouse, member2.spouse);
+                if (bloodDegree3 !== -1) {
+                    return `${bloodDegree3}親等旁系姻親(配血配)`;
+                }
+            }
+
+            return null;
+        }
+
+        function autoAlign() {
+            if (members.length === 0) return;
+            saveState();
+
+            const generationMap = new Map();
+            const visited = new Set();
+
+            function findRootMembers(member, visitedForRoot = new Set()) {
+                if (visitedForRoot.has(member)) return;
+                visitedForRoot.add(member);
+                if (member.parents.length === 0) {
+                    assignGenerationDownward(member, 0);
+                } else {
+                    member.parents.forEach(parent => findRootMembers(parent, visitedForRoot));
+                }
+            }
+
+            function assignGenerationDownward(member, gen = 0) {
+                if (visited.has(member)) {
+                    const existingGen = generationMap.get(member);
+                    if (existingGen !== gen) {
+                        console.warn(`世代衝突：${member.name} 原為 ${existingGen}，現為 ${gen}`);
+                        if (existingGen > gen) gen = existingGen;
+                    }
+                    return;
+                }
+                visited.add(member);
+                generationMap.set(member, gen);
+
+                member.children.forEach(child => assignGenerationDownward(child, gen + 1));
+
+                if (member.spouse) {
+                    if (!visited.has(member.spouse)) {
+                        assignGenerationDownward(member.spouse, gen);
+                    } else {
+                        const spouseGen = generationMap.get(member.spouse);
+                        if (spouseGen !== gen) {
+                            console.warn(`配偶世代衝突：${member.spouse.name} 原為 ${spouseGen}，應為 ${gen}`);
+                            generationMap.set(member, spouseGen);
+                            adjustGenerations(member, spouseGen);
+                        }
+                    }
+                }
+            }
+
+            function adjustGenerations(member, newGen) {
+                const currentGen = generationMap.get(member);
+                if (currentGen === newGen) return;
+
+                generationMap.set(member, newGen);
+                member.children.forEach(child => adjustGenerations(child, newGen + 1));
+                if (member.spouse && generationMap.get(member.spouse) !== newGen) {
+                    generationMap.set(member.spouse, newGen);
+                    member.spouse.children.forEach(child => adjustGenerations(child, newGen + 1));
+                }
+            }
+
+            members.forEach(m => findRootMembers(m));
+
+            members.forEach(member => {
+                if (member.spouse && member.parents.length > 0) {
+                    const memberGen = generationMap.get(member);
+                    const spouse = member.spouse;
+                    const spouseGen = generationMap.get(spouse);
+
+                    if (spouse.parents.length > 0) {
+                        spouse.parents.forEach(parent => {
+                            if (!generationMap.has(parent)) {
+                                generationMap.set(parent, memberGen - 1);
+                                visited.add(parent);
+                                parent.children.forEach(child => assignGenerationDownward(child, memberGen));
+                            } else {
+                                const parentGen = generationMap.get(parent);
+                                if (parentGen !== memberGen - 1) {
+                                    console.warn(`姻親世代修正：${parent.name} 從 ${parentGen} 調整為 ${memberGen - 1}`);
+                                    adjustGenerations(parent, memberGen - 1);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+
+            const levels = {};
+            generationMap.forEach((gen, member) => {
+                if (!levels[gen]) levels[gen] = [];
+                levels[gen].push(member);
+            });
+
+            Object.keys(levels).sort((a, b) => a - b).forEach(gen => {
+                let levelMembers = levels[gen];
+                let sortedMembers = [];
+                let processed = new Set();
+
+                levelMembers.forEach(member => {
+                    if (!processed.has(member)) {
+                        let familyGroup = [];
+                        if (member.parents.length > 0) {
+                            const siblings = member.parents[0].children.filter(c => 
+                                levelMembers.includes(c) && !processed.has(c)
+                            );
+                            siblings.sort((a, b) => {
+                                if (a.youngerSiblings.includes(b)) return -1;
+                                if (a.olderSiblings.includes(b)) return 1;
+                                return a.order - b.order;
+                            });
+                            familyGroup.push(...siblings);
+                        } else {
+                            familyGroup.push(member);
+                        }
+
+                        familyGroup.forEach(m => {
+                            if (!processed.has(m)) {
+                                sortedMembers.push(m);
+                                processed.add(m);
+                                if (m.spouse && levelMembers.includes(m.spouse) && !processed.has(m.spouse)) {
+                                    sortedMembers.push(m.spouse);
+                                    processed.add(m.spouse);
+                                }
+                            }
+                        });
+                    }
+                });
+
+                levels[gen] = sortedMembers;
+            });
+
+            const levelHeight = 120;
+            const memberWidth = 80;
+            const spouseGap = 40;
+            const canvasWidth = canvas.width / (window.devicePixelRatio || 2);
+
+            const generations = Object.keys(levels).map(Number);
+            const minGen = Math.min(...generations);
+            const maxGen = Math.max(...generations);
+            const totalGenerations = maxGen - minGen + 1;
+
+            const requiredHeight = totalGenerations * levelHeight + 100;
+            const scale = window.devicePixelRatio || 2;
+            canvas.height = requiredHeight * scale;
+            canvas.style.height = `${requiredHeight}px`;
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.scale(scale, scale);
+
+            const startY = 50;
+
+            Object.keys(levels).sort((a, b) => a - b).forEach(gen => {
+                const levelMembers = levels[gen];
+                
+                let totalWidth = 0;
+                levelMembers.forEach((m, idx) => {
+                    totalWidth += memberWidth;
+                    if (m.spouse && levelMembers[idx + 1] === m.spouse) {
+                        totalWidth += spouseGap;
+                    }
+                });
+
+                let startX = (canvasWidth - totalWidth) / 2;
+                let currentX = startX;
+
+                levelMembers.forEach((m, idx) => {
+                    m.x = currentX + memberWidth / 2;
+                    m.y = startY + ((gen - minGen) * levelHeight);
+                    currentX += memberWidth;
+                    if (m.spouse && levelMembers[idx + 1] === m.spouse) {
+                        currentX += spouseGap;
+                    }
+                });
+            });
+
+            drawTree();
+        }
+
+        function toggleShowRelations() {
+            if (!selectedMember) {
+                alert('請先選擇一個成員！');
+                return;
+            }
+            showingRelations = !showingRelations;
+            const button = document.getElementById('showRelationButton');
+            const icon = button.querySelector('i');
+            if (showingRelations) {
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+                button.innerHTML = '<i class="fas fa-eye-slash"></i> 隱藏所有親屬關係';
+            } else {
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+                button.innerHTML = '<i class="fas fa-eye"></i> 顯示所有親屬關係';
+            }
+            drawTree();
+        }
+
+        function startDownload() {
+            downloadPanel.style.display = 'block';
+            downloadPanel.style.left = `${canvas.offsetLeft + 50}px`;
+            downloadPanel.style.top = `${canvas.offsetTop + 50}px`;
+        }
+
+        function downloadImage(isWhiteBackground) {
+            const scale = 2;
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+
+            const mainWidth = canvas.width / (window.devicePixelRatio || 2);
+            const mainHeight = canvas.height / (window.devicePixelRatio || 2);
+            tempCanvas.width = mainWidth * scale;
+            tempCanvas.height = mainHeight * scale;
+            tempCtx.scale(scale, scale);
+
+            if (isWhiteBackground) {
+                tempCtx.fillStyle = '#ffffff';
+                tempCtx.fillRect(0, 0, mainWidth, mainHeight);
+            }
+
+            const drawnSpouses = new Set();
+            const drawnChildren = new Set();
+            members.forEach(m => m.drawLines(tempCtx, drawnSpouses, drawnChildren));
+            members.forEach(m => m.draw(tempCtx));
+
+            if (selectedMember) {
+                tempCtx.strokeStyle = 'red';
+                selectedMember.draw(tempCtx);
+                tempCtx.strokeStyle = 'black';
+            }
+            if (secondSelectedList.length > 0) {
+                tempCtx.strokeStyle = 'blue';
+                secondSelectedList.forEach(m => m.draw(tempCtx));
+                tempCtx.strokeStyle = 'black';
+            }
+
+            const link = document.createElement('a');
+            link.download = 'family_tree.png';
+            link.href = tempCanvas.toDataURL('image/png', 1.0);
+            link.click();
+
+            closeDownloadPanel();
+        }
+
+        function closeDownloadPanel() {
+            downloadPanel.style.display = 'none';
+        }
+
+        function clearCanvas() {
+            saveState();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            members = [];
+            selectedMember = null;
+            secondSelectedList = [];
+            settingRelation = false;
+            calculatingDegree = false;
+            showingRelations = false;
+            const button = document.getElementById('showRelationButton');
+            button.innerHTML = '<i class="fas fa-eye"></i> 顯示所有親屬關係';
+            resizeCanvas();
+            drawTree();
+        }
+
+        function drawTree() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const drawnSpouses = new Set();
+            const drawnChildren = new Set();
+            
+            members.forEach(m => m.drawLines(ctx, drawnSpouses, drawnChildren));
+            members.forEach(m => m.draw(ctx));
+
+            if (selectedMember) {
+                ctx.strokeStyle = 'red';
+                selectedMember.draw(ctx);
+                ctx.strokeStyle = 'black';
+            }
+            if (secondSelectedList.length > 0) {
+                ctx.strokeStyle = 'blue';
+                secondSelectedList.forEach(m => m.draw(ctx));
+                ctx.strokeStyle = 'black';
+            }
+        }
+
+        function makeDraggable(element) {
+            let isDragging = false;
+            let offsetX, offsetY;
+
+            element.addEventListener('mousedown', (e) => {
+                if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+
+                isDragging = true;
+                const rect = element.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                element.style.cursor = 'grabbing';
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    e.preventDefault();
+                    const newX = e.clientX - offsetX;
+                    const newY = e.clientY - offsetY;
+                    element.style.left = `${newX}px`;
+                    element.style.top = `${newY}px`;
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    element.style.cursor = 'move';
+                }
+            });
+        }
+
+        makeDraggable(relationPanel);
+        makeDraggable(statusPanel);
+        makeDraggable(degreePanel);
+        makeDraggable(addMemberPanel);
+        makeDraggable(editMemberPanel);
+        makeDraggable(downloadPanel);
+
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const scale = window.devicePixelRatio || 2;
+            const x = (e.clientX - rect.left) * scale / (window.devicePixelRatio || 2);
+            const y = (e.clientY - rect.top) * scale / (window.devicePixelRatio || 2);
+
+            const clicked = members.find(m => m.isInside(x, y));
+            if (clicked) {
+                if (settingRelation) {
+                    if (clicked !== selectedMember) {
+                        if (e.ctrlKey) {
+                            if (secondSelectedList.includes(clicked)) {
+                                secondSelectedList = secondSelectedList.filter(m => m !== clicked);
+                            } else {
+                                secondSelectedList.push(clicked);
+                            }
+                        } else {
+                            secondSelectedList = [clicked];
+                        }
+                        document.getElementById('secondSelected').textContent = secondSelectedList.length > 0 
+                            ? secondSelectedList.map(m => m.name).join(', ') 
+                            : '（請點選多個成員，按住 Ctrl 可多選）';
+                    }
+                } else if (calculatingDegree) {
+                    if (clicked !== selectedMember && secondSelectedList.length === 0) {
+                        secondSelectedList = [clicked];
+                        document.getElementById('degreeSecondSelected').textContent = clicked.name;
+                        const degree = calculateRelationDegree(selectedMember, clicked);
+                        document.getElementById('degreeResult').textContent = degree;
+                    }
+                } else {
+                    selectedMember = clicked;
+                    dragging = true;
+                    secondSelectedList = [];
+                    showingRelations = false;
+                    const button = document.getElementById('showRelationButton');
+                    button.innerHTML = '<i class="fas fa-eye"></i> 顯示所有親屬關係';
+                }
+            } else {
+                if (!e.ctrlKey || !settingRelation) {
+                    selectedMember = null;
+                    secondSelectedList = [];
+                    showingRelations = false;
+                    const button = document.getElementById('showRelationButton');
+                    button.innerHTML = '<i class="fas fa-eye"></i> 顯示所有親屬關係';
+                    closeRelationPanel();
+                    closeStatusPanel();
+                    closeDegreePanel();
+                    closeDownloadPanel();
+                }
+            }
+            drawTree();
+        });
+
+        let lastPosition = null;
+        canvas.addEventListener('mousemove', debounce((e) => {
+            const rect = canvas.getBoundingClientRect();
+            const scale = window.devicePixelRatio || 2;
+            const x = (e.clientX - rect.left) * scale / (window.devicePixelRatio || 2);
+            const y = (e.clientY - rect.top) * scale / (window.devicePixelRatio || 2);
+
+            if (dragging && selectedMember && !settingRelation) {
+                if (!lastPosition) lastPosition = { x: selectedMember.x, y: selectedMember.y };
+                selectedMember.x = x;
+                selectedMember.y = y;
+                drawTree();
+                hoverPanel.style.display = 'none';
+                return;
+            }
+
+            const hovered = members.find(m => m.isInside(x, y));
+            if (hovered && !dragging) {
+                let relations = '';
+                try {
+                    relations = members.map(m => {
+                        const relation = calculateRelationDegree(hovered, m);
+                        return `<p>${hovered.name} 與 ${m.name}：${relation}</p>`;
+                    }).join('');
+                } catch (error) {
+                    console.error('關係計算錯誤:', error);
+                    relations = `<p>無法計算關係（錯誤：${error.message}）</p>`;
+                }
+                document.getElementById('hoverRelations').innerHTML = relations || '<p>無關係資訊</p>';
+                hoverPanel.style.display = 'block';
+
+                const panelWidth = hoverPanel.offsetWidth;
+                const panelHeight = hoverPanel.offsetHeight;
+                let left = e.clientX + 10;
+                let top = e.clientY + 10;
+                if (left + panelWidth > window.innerWidth) left = e.clientX - panelWidth - 10;
+                if (top + panelHeight > window.innerHeight) top = e.clientY - panelHeight - 10;
+                hoverPanel.style.left = `${left}px`;
+                hoverPanel.style.top = `${top}px`;
+
+                lastHovered = hovered;
+            } else {
+                hoverPanel.style.display = 'none';
+                lastHovered = null;
+            }
+        }, 50));
+
+        canvas.addEventListener('mouseup', (e) => {
+            if (dragging && lastPosition) {
+                saveState();
+                lastPosition = null;
+            }
+            dragging = false;
+        });
+
+        canvas.addEventListener('dblclick', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const scale = window.devicePixelRatio || 2;
+            const x = (e.clientX - rect.left) * scale / (window.devicePixelRatio || 2);
+            const y = (e.clientY - rect.top) * scale / (window.devicePixelRatio || 2);
+
+            const clicked = members.find(m => m.isInside(x, y));
+            if (clicked) {
+                selectedMember = clicked;
+                editSelected();
+                return;
+            }
+
+            for (let m of members) {
+                if (m.spouse) {
+                    const spouseY = Math.max(m.y, m.spouse.y);
+                    if (m.getLineHitbox(m.x + 20, spouseY, m.spouse.x - 20, spouseY, x, y)) {
+                        saveState();
+                        m.spouse.spouse = null;
+                        m.spouse = null;
+                        drawTree();
+                        return;
+                    }
+                }
+
+                if (m.children.length > 0) {
+                    if (m.spouse) {
+                        const commonChildren = m.children.filter(child => child.parents.includes(m.spouse));
+                        if (commonChildren.length > 0) {
+                            const midX = (m.x + m.spouse.x) / 2;
+                            const midY = Math.max(m.y, m.spouse.y) + 20;
+                            const verticalMidY = midY + ((commonChildren.reduce((max, child) => Math.max(max, child.y), 0) - midY) / 2);
+
+                            if (m.getLineHitbox(midX, midY, midX, verticalMidY, x, y)) {
+                                saveState();
+                                commonChildren.forEach(child => {
+                                    child.parents = child.parents.filter(p => p !== m && p !== m.spouse);
+                                    m.children = m.children.filter(c => c !== child);
+                                    m.spouse.children = m.spouse.children.filter(c => c !== child);
+                                });
+                                drawTree();
+                                return;
+                            }
+
+                            for (let child of commonChildren) {
+                                if (m.getLineHitbox(midX, verticalMidY, child.x, verticalMidY, x, y) ||
+                                    m.getLineHitbox(child.x, verticalMidY, child.x, child.y - 20, x, y)) {
+                                    saveState();
+                                    child.parents = child.parents.filter(p => p !== m && p !== m.spouse);
+                                    m.children = m.children.filter(c => c !== child);
+                                    m.spouse.children = m.spouse.children.filter(c => c !== child);
+                                    drawTree();
+                                    return;
+                                }
+                            }
+                        }
+
+                        const soloChildren = m.children.filter(child => !child.parents.includes(m.spouse));
+                        for (let child of soloChildren) {
+                            const midY = (m.y + 20 + child.y - 20) / 2;
+                            if (m.getLineHitbox(m.x, m.y + 20, m.x, midY, x, y) ||
+                                m.getLineHitbox(m.x, midY, child.x, midY, x, y) ||
+                                m.getLineHitbox(child.x, midY, child.x, child.y - 20, x, y)) {
+                                saveState();
+                                child.parents = child.parents.filter(p => p !== m);
+                                m.children = m.children.filter(c => c !== child);
+                                drawTree();
+                                return;
+                            }
+                        }
+                    } else {
+                        for (let child of m.children) {
+                            const midY = (m.y + 20 + child.y - 20) / 2;
+                            if (m.getLineHitbox(m.x, m.y + 20, m.x, midY, x, y) ||
+                                m.getLineHitbox(m.x, midY, child.x, midY, x, y) ||
+                                m.getLineHitbox(child.x, midY, child.x, child.y - 20, x, y)) {
+                                saveState();
+                                child.parents = child.parents.filter(p => p !== m);
+                                m.children = m.children.filter(c => c !== child);
+                                drawTree();
+                                return;
+                            }
+                        }
+                    }
+                }
+
+                for (let parent of m.parents) {
+                    if (parent.spouse && m.parents.includes(parent.spouse)) {
+                        const spouse = parent.spouse;
+                        const midX = (parent.x + spouse.x) / 2;
+                        const midY = Math.max(parent.y, spouse.y) + 20;
+                        const childMidY = m.y - 20;
+                        const verticalMidY = (midY + childMidY) / 2;
+
+                        if (m.getLineHitbox(midX, midY, midX, verticalMidY, x, y) ||
+                            m.getLineHitbox(midX, verticalMidY, m.x, verticalMidY, x, y) ||
+                            m.getLineHitbox(m.x, verticalMidY, m.x, childMidY, x, y)) {
+                            saveState();
+                            m.parents = m.parents.filter(p => p !== parent && p !== spouse);
+                            parent.children = parent.children.filter(c => c !== m);
+                            spouse.children = spouse.children.filter(c => c !== m);
+                            drawTree();
+                            return;
+                        }
+                    } else {
+                        const parentY = parent.y + 20;
+                        const childY = m.y - 20;
+                        const midY = (parentY + childY) / 2;
+                        if (m.getLineHitbox(parent.x, parentY, parent.x, midY, x, y) ||
+                            m.getLineHitbox(parent.x, midY, m.x, midY, x, y) ||
+                            m.getLineHitbox(m.x, midY, m.x, childY, x, y)) {
+                            saveState();
+                            m.parents = m.parents.filter(p => p !== parent);
+                            parent.children = parent.children.filter(c => c !== m);
+                            drawTree();
+                            return;
+                        }
+                    }
+                }
+            }
+        });
+
+        function debounce(func, wait) {
+            let timeout;
+            return function (...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+    </script>
+</body>
+</html>
