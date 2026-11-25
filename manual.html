@@ -1,0 +1,2356 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>使用說明書｜家庭樹狀圖繪製系統</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --bg-body: #f0f2f5;
+            --bg-container: #ffffff;
+            --bg-card: #ffffff;
+            --bg-soft: #f8f9fa;
+            --text-primary: #2c3e50;
+            --text-secondary: #555555;
+            --text-muted: #666666;
+            --border-color: #dcdcdc;
+            --border-soft: #e4e7ec;
+            --input-bg: #ffffff;
+            --input-border: #cccccc;
+            --accent: #1A73E8;
+            --accent-soft: rgba(26, 115, 232, 0.08);
+            --shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        body.theme-dark {
+            --bg-body: #12151c;
+            --bg-container: #1b202b;
+            --bg-card: #1b202b;
+            --bg-soft: #232a38;
+            --text-primary: #eef2f8;
+            --text-secondary: #cfd8e3;
+            --text-muted: #9aa7b8;
+            --border-color: #343d4f;
+            --border-soft: #2e3647;
+            --input-bg: #171c26;
+            --input-border: #3d485d;
+            --accent: #64b5f6;
+            --accent-soft: rgba(100, 181, 246, 0.14);
+            --shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+        }
+
+        body.theme-print {
+            --bg-body: #ffffff;
+            --bg-container: #ffffff;
+            --bg-card: #ffffff;
+            --bg-soft: #ffffff;
+            --text-primary: #000000;
+            --text-secondary: #111111;
+            --text-muted: #333333;
+            --border-color: #000000;
+            --border-soft: #999999;
+            --input-bg: #ffffff;
+            --input-border: #444444;
+            --accent: #000000;
+            --accent-soft: #f5f5f5;
+            --shadow: none;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            margin: 0;
+            padding: 14px;
+            font-family: 'Microsoft JhengHei', 'PingFang TC', 'Arial', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-primary);
+            line-height: 1.72;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        /* 與主頁完全一致的置中主容器 */
+        .container {
+            background: var(--bg-container);
+            padding: 20px 22px 24px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+            border: 1px solid var(--border-soft);
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .header-row h1 {
+            color: var(--text-primary);
+            margin: 0;
+            font-size: 25px;
+        }
+        .version-badge {
+            font-size: 12px;
+            color: var(--text-muted);
+            background: var(--bg-soft);
+            border: 1px solid var(--border-soft);
+            padding: 3px 10px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* 與主頁同款的頂部操作按鈕列 */
+        .button-group {
+            margin-bottom: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 13.5px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .action-btn:active { transform: scale(0.97); }
+        .action-btn.btn-blue { background-color: #1A73E8; }
+        .action-btn.btn-blue:hover { background-color: #1558B0; }
+        .action-btn.btn-lightgreen { background-color: #2E8B57; }
+        .action-btn.btn-lightgreen:hover { background-color: #246E44; }
+        .action-btn.btn-gray { background-color: #607D8B; }
+        .action-btn.btn-gray:hover { background-color: #455A64; }
+
+        .theme-select {
+            padding: 5px 10px;
+            border: 1px solid var(--input-border);
+            border-radius: 6px;
+            font-size: 13.5px;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-family: inherit;
+            cursor: pointer;
+        }
+        body.theme-print .action-btn {
+            background-color: #222 !important;
+            color: #fff !important;
+        }
+
+        /* 與主頁 .view-controls 同款的章節快速導覽列 */
+        .toc-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 6px 8px;
+            margin: 0 auto 18px;
+            padding: 9px 12px;
+            background: var(--bg-soft);
+            border: 1px solid var(--border-soft);
+            border-radius: 8px;
+        }
+        .toc-bar a {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+        }
+        .toc-bar a:hover {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+        .toc-bar a i {
+            font-size: 12px;
+            color: var(--accent);
+        }
+
+        /* 內文區 */
+        .content {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            text-align: left;
+        }
+        .section-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            border-radius: 10px;
+            padding: 20px 22px;
+            scroll-margin-top: 18px;
+        }
+        .overview-box {
+            background: var(--bg-soft);
+            border: 1px solid var(--border-soft);
+            border-left: 4px solid #1A73E8;
+        }
+        .hero-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 10px;
+        }
+        .hero-tag {
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            color: var(--text-primary);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .hero-tag i {
+            color: var(--accent);
+        }
+
+        h2.section-title {
+            margin: 0 0 12px;
+            font-size: 18.5px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-soft);
+        }
+        h2.section-title i {
+            color: var(--accent);
+        }
+        h3 {
+            margin: 16px 0 8px;
+            font-size: 15.5px;
+            color: var(--text-primary);
+        }
+        p {
+            margin: 6px 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* 右上角回主頁圓形按鈕（對應主頁的 #manualButton） */
+        #homeButton {
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            width: 40px;
+            height: 40px;
+            background-color: #1976D2;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+            z-index: 2000;
+            transition: transform 0.25s, background-color 0.25s;
+        }
+        #homeButton a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 17px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+        #homeButton:hover {
+            background-color: #1565C0;
+            transform: scale(1.1);
+        }
+
+        /* 互動程式教學動畫區塊 */
+        .demo-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+        .demo-tab-btn {
+            padding: 6px 11px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-soft);
+            color: var(--text-primary);
+            font-size: 13px;
+            cursor: pointer;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+        }
+        .demo-tab-btn:hover {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+        }
+        .demo-tab-btn.active {
+            background: #1A73E8;
+            color: #fff;
+            border-color: #1A73E8;
+        }
+        .demo-ctrl-btn {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 12.5px;
+            cursor: pointer;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .demo-ctrl-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .demo-canvas-wrap {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--bg-card);
+        }
+        #demoCanvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-width: 780px;
+            margin: 0 auto;
+        }
+        .demo-caption-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px 14px;
+            background: var(--bg-soft);
+            border-top: 1px solid var(--border-soft);
+            font-size: 13.5px;
+            color: var(--text-primary);
+        }
+        .demo-step-badge {
+            font-size: 12px;
+            font-weight: 600;
+            color: #fff;
+            background: #1A73E8;
+            padding: 2px 8px;
+            border-radius: 999px;
+            margin-right: 6px;
+        }
+        .demo-progress {
+            width: 100%;
+            height: 7px;
+            background: var(--border-soft);
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .demo-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #1A73E8;
+            transition: width 0.06s linear;
+            pointer-events: none;
+        }
+
+        /* 按鈕徽章列表 */
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .tool-item {
+            background: var(--bg-soft);
+            border: 1px solid var(--border-color);
+            border-radius: 9px;
+            padding: 12px 14px;
+        }
+        .tool-item p {
+            margin: 6px 0 0;
+            font-size: 13.5px;
+            line-height: 1.55;
+        }
+        .btn-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 12.5px;
+            font-weight: 600;
+        }
+        .c-brown { background: #8B4513; }
+        .c-red { background: #D93025; }
+        .c-orange { background: #E67E00; }
+        .c-lightgreen { background: #2E8B57; }
+        .c-darkgreen { background: #1B5E20; }
+        .c-blue { background: #1A73E8; }
+        .c-teal { background: #00796B; }
+        .c-purple { background: #7B1FA2; }
+        .c-indigo { background: #3949AB; }
+        .c-pink { background: #D81B60; }
+        .c-gray { background: #607D8B; }
+
+        /* 符號圖例視覺卡片 */
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .legend-card {
+            background: var(--bg-soft);
+            border: 1px solid var(--border-color);
+            border-radius: 9px;
+            padding: 12px;
+            text-align: center;
+        }
+        .legend-card svg {
+            display: block;
+            margin: 0 auto 6px;
+        }
+        .legend-card .label {
+            font-weight: 600;
+            font-size: 13.5px;
+            color: var(--text-primary);
+        }
+        .legend-card .desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* 步驟清單 */
+        .guide-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .guide-block {
+            background: var(--bg-soft);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent);
+            border-radius: 8px;
+            padding: 14px 16px;
+        }
+        .guide-block h3 {
+            margin: 0 0 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .guide-block ol,
+        .guide-block ul {
+            margin: 4px 0 0;
+            padding-left: 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        .guide-block li {
+            margin-bottom: 4px;
+        }
+
+        /* 表格 */
+        .table-wrap {
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th, td {
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background: var(--bg-soft);
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        td {
+            color: var(--text-secondary);
+        }
+        kbd {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 12px;
+            font-family: Consolas, monospace;
+            color: var(--text-primary);
+            background: var(--bg-soft);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: 0 1px 0 var(--border-color);
+        }
+
+        /* 提示框 */
+        .callout {
+            background: var(--accent-soft);
+            border: 1px solid rgba(25, 118, 210, 0.25);
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-top: 12px;
+            font-size: 13.5px;
+            color: var(--text-primary);
+        }
+        .callout i {
+            color: var(--accent);
+            margin-right: 6px;
+        }
+
+        /* FAQ 折疊 */
+        details.faq-item {
+            background: var(--bg-soft);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+        }
+        details.faq-item summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14.5px;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        details.faq-item summary::after {
+            content: '＋';
+            color: var(--accent);
+            font-weight: 700;
+        }
+        details.faq-item[open] summary::after {
+            content: '－';
+        }
+        details.faq-item p {
+            margin: 10px 0 0;
+            font-size: 14px;
+        }
+
+        /* 頁尾 */
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            padding: 16px;
+            font-size: 13.5px;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        .footer-fb-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            opacity: 0.78;
+            transition: opacity 0.2s, color 0.2s;
+        }
+        .footer-fb-link:hover {
+            opacity: 1;
+            color: var(--text-primary);
+        }
+        .footer-fb-link:hover i {
+            color: #1877F2;
+        }
+
+        /* 吉祥物樣式（可點擊粒子與自由拖曳） */
+        #mascot {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 105px;
+            height: auto;
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-drag: none;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 999;
+        }
+        #mascot:hover {
+            transform: scale(1.15) rotate(-8deg);
+            animation: mascot-shake 0.5s infinite alternate;
+        }
+        #mascot.dragging {
+            cursor: grabbing;
+            animation: none;
+            transition: none;
+            transform: scale(1.08);
+            z-index: 2002;
+        }
+        .particle {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 2001;
+            transition: transform 1s ease-out, opacity 1s ease-out;
+        }
+        @keyframes mascot-shake {
+            0% { transform: scale(1.15) rotate(-8deg); }
+            100% { transform: scale(1.15) rotate(8deg); }
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 8px; }
+            .container { padding: 12px; }
+            .header-row h1 { font-size: 20px; }
+            .section-card { padding: 14px 15px; }
+            #mascot {
+                width: 72px;
+                bottom: 12px;
+                left: 12px;
+            }
+        }
+        @media print {
+            .button-group, .toc-bar, #homeButton, #mascot { display: none !important; }
+            .container { box-shadow: none; border: none; padding: 0; }
+            .section-card { break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-row">
+            <h1>家庭樹狀圖繪製系統｜使用說明書</h1>
+            <span class="version-badge"><i class="fas fa-book-open"></i> 完整功能指南</span>
+        </div>
+
+        <div class="button-group">
+            <a class="action-btn btn-blue" href="index.html"><i class="fas fa-arrow-left"></i> 回到繪製系統</a>
+            <button class="action-btn btn-lightgreen" onclick="window.print()"><i class="fas fa-print"></i> 列印說明書</button>
+            <select id="themeSelect" class="theme-select" onchange="changeManualTheme(this.value)" title="切換顯示主題">
+                <option value="light">淺色主題</option>
+                <option value="dark">深色主題</option>
+                <option value="print">列印黑白</option>
+            </select>
+        </div>
+
+        <!-- 章節快速導覽列（與主頁控制列同款） -->
+        <nav class="toc-bar" aria-label="說明書章節目錄">
+            <a href="#overview"><i class="fas fa-home"></i> 系統概述</a>
+            <a href="#demo-anim"><i class="fas fa-play-circle"></i> 動畫教學</a>
+            <a href="#toolbar"><i class="fas fa-tools"></i> 工具列按鈕</a>
+            <a href="#view-controls"><i class="fas fa-sliders-h"></i> 縮放與寬窄</a>
+            <a href="#quick-templates"><i class="fas fa-bolt"></i> 快速新增與存檔</a>
+            <a href="#symbols"><i class="fas fa-shapes"></i> 符號與色標</a>
+            <a href="#controls"><i class="fas fa-hand-pointer"></i> 觸控與快捷鍵</a>
+            <a href="#guides"><i class="fas fa-list-ol"></i> 操作指南</a>
+            <a href="#kinship"><i class="fas fa-project-diagram"></i> 親等規則</a>
+            <a href="#export-share"><i class="fas fa-share-alt"></i> 匯出與分享</a>
+            <a href="#notes-faq"><i class="fas fa-question-circle"></i> 注意事項與 FAQ</a>
+        </nav>
+
+        <!-- 說明書內文 -->
+        <main class="content">
+            <!-- 系統概述 -->
+            <section id="overview" class="section-card overview-box">
+                <h2 class="section-title" style="border-bottom: none; padding-bottom: 0; margin-bottom: 6px;">
+                    <i class="fas fa-info-circle"></i> 系統概述
+                </h2>
+                <p>
+                    本系統專為繪製家族樹、家系圖與公民科「親屬與親等」教學設計。不需安裝任何軟體，開啟瀏覽器即可於電腦、平板或手機上建立成員、設定多元家庭關係、智慧自動對齊大家族、視覺化高亮親等計算路徑，並支援 PNG／SVG 匯出與一鍵分享連結。
+                </p>
+                <div class="hero-tags">
+                    <span class="hero-tag"><i class="fas fa-mobile-alt"></i> 支援手機／平板觸控</span>
+                    <span class="hero-tag"><i class="fas fa-sitemap"></i> 智慧子樹自動對齊</span>
+                    <span class="hero-tag"><i class="fas fa-route"></i> 親等計算路徑高亮</span>
+                    <span class="hero-tag"><i class="fas fa-save"></i> 自動儲存草稿</span>
+                    <span class="hero-tag"><i class="fas fa-link"></i> 一鍵 URL 分享</span>
+                    <span class="hero-tag"><i class="fas fa-bezier-curve"></i> PNG／SVG 向量匯出</span>
+                </div>
+            </section>
+
+            <!-- 互動程式繪製指導教學動畫（8 大完整劇本） -->
+            <section id="demo-anim" class="section-card">
+                <h2 class="section-title"><i class="fas fa-play-circle"></i> 完整動態操作指導教學（8 大功能即時演示）</h2>
+                <p>點選下方任一劇本（或點擊進度條任意位置跳轉），即可觀看完整的功能步驟動畫示範：</p>
+
+                <div class="demo-tabs">
+                    <button class="demo-tab-btn active" data-scene="0" onclick="selectDemoScene(0)"><i class="fas fa-user-edit"></i> 1. 新增／狀態／年份</button>
+                    <button class="demo-tab-btn" data-scene="1" onclick="selectDemoScene(1)"><i class="fas fa-bolt"></i> 2. 一鍵快速建樹</button>
+                    <button class="demo-tab-btn" data-scene="2" onclick="selectDemoScene(2)"><i class="fas fa-project-diagram"></i> 3. 收養／雙胞胎／再婚</button>
+                    <button class="demo-tab-btn" data-scene="3" onclick="selectDemoScene(3)"><i class="fas fa-align-center"></i> 4. 智慧自動對齊</button>
+                    <button class="demo-tab-btn" data-scene="4" onclick="selectDemoScene(4)"><i class="fas fa-sliders-h"></i> 5. 寬窄／縮放／搜尋</button>
+                    <button class="demo-tab-btn" data-scene="5" onclick="selectDemoScene(5)"><i class="fas fa-route"></i> 6. 親等路徑與全親屬</button>
+                    <button class="demo-tab-btn" data-scene="6" onclick="selectDemoScene(6)"><i class="fas fa-vector-square"></i> 7. 框選／解線／復原</button>
+                    <button class="demo-tab-btn" data-scene="7" onclick="selectDemoScene(7)"><i class="fas fa-mobile-alt"></i> 8. 觸控／匯出／分享</button>
+                </div>
+
+                <div class="demo-tabs" style="margin-bottom: 10px;">
+                    <button class="demo-ctrl-btn" onclick="stepDemoScene(-1)"><i class="fas fa-step-backward"></i> 上一劇本</button>
+                    <button id="demoPlayBtn" class="demo-ctrl-btn" onclick="toggleDemoPlay()"><i class="fas fa-pause"></i> 暫停</button>
+                    <button class="demo-ctrl-btn" onclick="restartDemoScene()"><i class="fas fa-redo"></i> 重播</button>
+                    <button class="demo-ctrl-btn" onclick="stepDemoScene(1)">下一劇本 <i class="fas fa-step-forward"></i></button>
+                    <span style="flex:1;"></span>
+                    <label style="font-size:12.5px; color:var(--text-muted); display:inline-flex; align-items:center; gap:4px; cursor:pointer;">
+                        <input type="checkbox" id="demoAutoNext" checked> 自動輪播下一劇本
+                    </label>
+                </div>
+
+                <div class="demo-canvas-wrap">
+                    <canvas id="demoCanvas" width="780" height="360"></canvas>
+                    <div id="demoProgressBar" class="demo-progress" title="點擊可跳轉動畫進度"><div id="demoProgressFill" class="demo-progress-fill"></div></div>
+                    <div class="demo-caption-bar">
+                        <div>
+                            <span id="demoStepBadge" class="demo-step-badge">步驟 1</span>
+                            <span id="demoCaptionText">正在載入動畫...</span>
+                        </div>
+                        <span id="demoSceneCounter" style="font-size:12px; color:var(--text-muted); font-variant-numeric:tabular-nums;">劇本 1 / 8</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 主工具列按鈕 -->
+            <section id="toolbar" class="section-card">
+                <h2 class="section-title"><i class="fas fa-tools"></i> 一、主工具列功能一覽</h2>
+                <p>畫布上方為核心編輯功能列，下方為匯出、分享與管理按鈕：</p>
+
+                <div class="tool-grid">
+                    <div class="tool-item">
+                        <span class="btn-pill c-brown"><i class="fas fa-user-plus"></i> 新增角色</span>
+                        <p>新增家庭成員至畫布，可填寫姓名、性別，並選填<strong>生卒年份</strong>與<strong>備註說明</strong>（按 Enter 可直接確認）。</p>
+                    </div>
+                    <div class="tool-item">
+                        <span class="btn-pill c-brown"><i class="fas fa-edit"></i> 編輯角色</span>
+                        <p>修改已選取成員的姓名、性別、生卒年份、備註，並可<strong>上傳照片頭像</strong>（雙擊成員亦可開啟）。</p>
+                    </div>
+                    <div class="tool-item">
+                        <span class="btn-pill c-brown"><i class="fas fa-trash"></i> 刪除選擇</span>
+                        <p>移除選取的單一成員，或移除已<strong>框選的多位成員</strong>及其關聯連線（快捷鍵 <kbd>Delete</kbd>）。</p>
+                    </div>
+                    <div class="tool-item">
+                        <span class="btn-pill c-red"><i class="fas fa-link"></i> 設定關係</span>
+                        <p>建立 9 種關係：配偶、<strong>前配偶(再婚)</strong>、父母、子女、<strong>養父母</strong>、<strong>養子女</strong>、兄姐、弟妹、<strong>雙胞胎</strong>。</p>
+                    </div>
+                    <div class="tool-item">
+                        <span class="btn-pill c-red"><i class="fas fa-cog"></i> 設定狀態</span>
+                        <p>更改選取成員的狀態：<strong>正常</strong>、<strong>死亡</strong>（交叉線）、<strong>離婚</strong>（虛線）、<strong>失蹤</strong>（虛線）。</p>
+                    </div>
+                    <div class="tool-item">
+                        <span class="btn-pill c-orange"><i class="fas fa-users"></i> 關係親等</span>
+                        <p>計算兩位成員的親等，於畫布以<strong>彩色粗線＋步驟編號高亮計算路徑</strong>，並可連續改點其他成員查詢。</p>
+                    </div>
+                    <div class="tool-item">
+                        <span class="btn-pill c-lightgreen"><i class="fas fa-align-center"></i> 自動對齊</span>
+                        <p>採用<strong>子樹重心對齊演算法</strong>：父母置於子女正上方、外家父母就近排列、同層不同家庭折線自動分層錯開。</p>
+                    </div>
+                    <div class="tool-item">
+                        <span class="btn-pill c-darkgreen"><i class="fas fa-undo"></i> 復原 ／ 取消復原</span>
+                        <p>最多保存 50 步操作紀錄（含拖曳位置），支援 <kbd>Ctrl+Z</kbd> 復原與 <kbd>Ctrl+Y</kbd> 取消復原。</p>
+                    </div>
+                    <div class="tool-item">
+                        <span class="btn-pill c-blue"><i class="fas fa-eye"></i> 顯示所有親屬關係</span>
+                        <p>以選取成員為主角，分色標示所有成員的親等；長標籤自動兩行換行＋縮放字體防止重疊。</p>
+                    </div>
+                    <div class="tool-item">
+                        <span class="btn-pill c-teal"><i class="fas fa-folder-open"></i> 範本／專案</span>
+                        <p>一鍵載入內建 3 套範本（核心家庭、三代同堂、四代聯姻大家族），或管理本機多份命名專案。</p>
+                    </div>
+                    <div class="tool-item">
+                        <span class="btn-pill c-purple"><i class="fas fa-download"></i> 下載圖片 / SVG</span>
+                        <p>支援自動緊貼裁切白邊的 <strong>PNG（白底／透明）</strong>，以及無限放大不模糊的 <strong>SVG 向量圖</strong>。</p>
+                    </div>
+                    <div class="tool-item">
+                        <span class="btn-pill c-indigo"><i class="fas fa-share-alt"></i> 分享連結</span>
+                        <p>將目前家族樹壓縮編碼成網址並自動複製，對方點開連結即可直接載入檢視，免傳 JSON 檔。</p>
+                    </div>
+                    <div class="tool-item">
+                        <span class="btn-pill c-pink"><i class="fas fa-file-export"></i> 匯出 ／ 匯入 JSON</span>
+                        <p>將完整家族資料（含備註與頭像）存成 <code>.json</code> 檔案備份，日後可隨時重新匯入繼續編輯。</p>
+                    </div>
+                    <div class="tool-item">
+                        <span class="btn-pill c-gray"><i class="fas fa-broom"></i> 清除畫布</span>
+                        <p>清空畫布上所有成員與關係（具防誤觸確認視窗，清除後仍可按「復原」救回）。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 檢視與尺寸控制列 -->
+            <section id="view-controls" class="section-card">
+                <h2 class="section-title"><i class="fas fa-sliders-h"></i> 二、檢視、縮放與寬窄層高控制列</h2>
+                <p>當家族人數多達數十人時，善用畫布上方的檢視控制列能大幅提升瀏覽與排版體驗：</p>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 170px;">控制項目</th>
+                                <th>功能說明與使用時機</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>搜尋姓名／定位</strong></td>
+                                <td>輸入成員姓名關鍵字按 Enter 或「定位」，畫面會自動捲動至該成員中央並顯示閃爍橘色光圈。</td>
+                            </tr>
+                            <tr>
+                                <td><strong>縮放與「符合畫面」</strong></td>
+                                <td>支援 <code>15% ~ 200%</code> 縮放（點擊百分比重設 100%）。點<strong>「符合畫面」</strong>可一鍵將整張大家族完整縮放至視窗內檢視。</td>
+                            </tr>
+                            <tr>
+                                <td><strong>畫布寬 ／ 高</strong></td>
+                                <td>可直接輸入像素數值（寬 <code>300–5000</code>、高 <code>300–4000</code>）手動擴張或縮小畫布範圍。</td>
+                            </tr>
+                            <tr>
+                                <td><strong>寬窄 ／ 層高滑桿</strong></td>
+                                <td>拖動<strong>「寬窄（45–150）」</strong>調整水平緊湊度、拖動<strong>「層高（75–180）」</strong>調整上下世代距離，系統會即時重新排版。</td>
+                            </tr>
+                            <tr>
+                                <td><strong>框選</strong></td>
+                                <td>開啟後在畫布拖曳即可拉出藍色虛線框，一次選取多位成員並<strong>整批拖曳移動</strong>或整批刪除。</td>
+                            </tr>
+                            <tr>
+                                <td><strong>圖例</strong></td>
+                                <td>開啟後在畫布右上角顯示「家系圖圖例」說明卡；下載 PNG 時也會一併繪入成品中。</td>
+                            </tr>
+                            <tr>
+                                <td><strong>主題切換</strong></td>
+                                <td>可自由切換<strong>淺色主題</strong>、<strong>深色主題</strong>（夜間護眼）與<strong>列印黑白</strong>（純黑白高對比，適合印考卷／講義）。</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 快速新增親屬與自動儲存 -->
+            <section id="quick-templates" class="section-card">
+                <h2 class="section-title"><i class="fas fa-bolt"></i> 三、一鍵快速新增親屬與自動儲存</h2>
+                <div class="guide-list">
+                    <div class="guide-block">
+                        <h3><i class="fas fa-user-plus"></i> 選取成員「一鍵快速新增親屬列」</h3>
+                        <p>點選畫布上任一位成員後，畫布上方會立即出現藍色快捷列：</p>
+                        <p><code>＋配偶</code>　<code>＋父母</code>　<code>＋子女</code>　<code>＋兄姐</code>　<code>＋弟妹</code></p>
+                        <p>點擊任一按鈕並輸入姓名按 Enter，系統會自動建立新成員、設定好雙向關係（新增子女時也會自動關聯其配偶），並擺放在對應的世代位置，建圖速度比手動連線快 3~5 倍！</p>
+                    </div>
+                    <div class="guide-block">
+                        <h3><i class="fas fa-cloud-upload-alt"></i> 自動儲存草稿與多專案管理</h3>
+                        <ul>
+                            <li><strong>自動儲存</strong>：標題旁顯示「已自動儲存 HH:MM」，每次修改皆即時寫入本機瀏覽器，不小心重整或關閉分頁，下次開啟會自動還原上次進度。</li>
+                            <li><strong>多專案存檔</strong>：點擊「範本／專案」可將目前畫布命名存檔，隨時在不同班級範例或不同家族樹之間切換。</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 家系圖符號與色標 -->
+            <section id="symbols" class="section-card">
+                <h2 class="section-title"><i class="fas fa-shapes"></i> 四、家系圖符號、連線與親等色標</h2>
+                <div class="legend-grid">
+                    <div class="legend-card">
+                        <svg width="70" height="48" viewBox="0 0 70 48"><rect x="19" y="8" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                        <div class="label">男性</div>
+                        <div class="desc">正方形節點</div>
+                    </div>
+                    <div class="legend-card">
+                        <svg width="70" height="48" viewBox="0 0 70 48"><circle cx="35" cy="24" r="16" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                        <div class="label">女性</div>
+                        <div class="desc">圓形節點</div>
+                    </div>
+                    <div class="legend-card">
+                        <svg width="70" height="48" viewBox="0 0 70 48"><rect x="19" y="8" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"/><line x1="23" y1="12" x2="47" y2="36" stroke="currentColor" stroke-width="2"/><line x1="47" y1="12" x2="23" y2="36" stroke="currentColor" stroke-width="2"/></svg>
+                        <div class="label">死亡</div>
+                        <div class="desc">節點內畫交叉線</div>
+                    </div>
+                    <div class="legend-card">
+                        <svg width="70" height="48" viewBox="0 0 70 48"><circle cx="35" cy="24" r="16" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4,3"/></svg>
+                        <div class="label">離婚 ／ 失蹤</div>
+                        <div class="desc">虛線外框（離婚配偶線亦為虛線）</div>
+                    </div>
+                    <div class="legend-card">
+                        <svg width="70" height="48" viewBox="0 0 70 48"><line x1="10" y1="24" x2="60" y2="24" stroke="currentColor" stroke-width="3.2"/></svg>
+                        <div class="label">現任配偶</div>
+                        <div class="desc">水平粗實線連接</div>
+                    </div>
+                    <div class="legend-card">
+                        <svg width="70" height="48" viewBox="0 0 70 48"><line x1="10" y1="24" x2="60" y2="24" stroke="currentColor" stroke-width="2" stroke-dasharray="5,4"/></svg>
+                        <div class="label">收養 ／ 前配偶</div>
+                        <div class="desc">虛線親子線或前段婚姻線</div>
+                    </div>
+                    <div class="legend-card">
+                        <svg width="70" height="48" viewBox="0 0 70 48"><line x1="35" y1="6" x2="35" y2="16" stroke="currentColor" stroke-width="2"/><line x1="35" y1="16" x2="18" y2="40" stroke="currentColor" stroke-width="2"/><line x1="35" y1="16" x2="52" y2="40" stroke="currentColor" stroke-width="2"/></svg>
+                        <div class="label">雙胞胎</div>
+                        <div class="desc">同分支點倒 V 字形連線</div>
+                    </div>
+                    <div class="legend-card">
+                        <svg width="70" height="48" viewBox="0 0 70 48"><rect x="19" y="10" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="49" cy="12" r="4" fill="#1976D2"/></svg>
+                        <div class="label">含備註資訊</div>
+                        <div class="desc">右上角藍點，懸停可查看</div>
+                    </div>
+                </div>
+
+                <h3>親屬關係顏色對照（開啟「顯示所有親屬關係」時）</h3>
+                <div class="hero-tags" style="margin-top:8px;">
+                    <span class="btn-pill" style="background:#D93025;">紅色：目前選取主角</span>
+                    <span class="btn-pill" style="background:#ef6c00;">橘色：配偶</span>
+                    <span class="btn-pill" style="background:#1565C0;">藍色：直系血親</span>
+                    <span class="btn-pill" style="background:#2E7D32;">綠色：旁系血親</span>
+                    <span class="btn-pill" style="background:#C2185B;">粉紅色：姻親</span>
+                    <span class="btn-pill" style="background:#7B1FA2;">紫色：框選多選成員</span>
+                </div>
+            </section>
+
+            <!-- 滑鼠、觸控與鍵盤操作 -->
+            <section id="controls" class="section-card">
+                <h2 class="section-title"><i class="fas fa-hand-pointer"></i> 五、畫布互動：電腦、手機／平板與快捷鍵</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 150px;">操作目的</th>
+                                <th>電腦滑鼠／鍵盤</th>
+                                <th>手機／平板觸控</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>選取／移動成員</strong></td>
+                                <td>左鍵點擊選取，按住直接拖曳移動</td>
+                                <td>單指點選，按住直接拖曳移動</td>
+                            </tr>
+                            <tr>
+                                <td><strong>平移畫布視野</strong></td>
+                                <td>按住畫布空白處拖曳，或拖動捲軸</td>
+                                <td>單指在空白處上下左右滑動</td>
+                            </tr>
+                            <tr>
+                                <td><strong>縮放畫布</strong></td>
+                                <td><kbd>Ctrl</kbd> + 滑鼠滾輪，或點縮放按鈕</td>
+                                <td>雙指捏合縮放，或點「符合畫面」</td>
+                            </tr>
+                            <tr>
+                                <td><strong>編輯成員</strong></td>
+                                <td>雙擊成員節點，或選取後點「編輯角色」</td>
+                                <td>快速輕點成員兩下（雙擊）</td>
+                            </tr>
+                            <tr>
+                                <td><strong>解除關係連線</strong></td>
+                                <td>雙擊配偶線、前配偶線或親子折線</td>
+                                <td>快速輕點該關係連線兩下</td>
+                            </tr>
+                            <tr>
+                                <td><strong>設定關係多選</strong></td>
+                                <td>按住 <kbd>Ctrl</kbd>（Mac 為 <kbd>⌘</kbd>）點選多位對象</td>
+                                <td>直接逐一點擊成員即可切換多選</td>
+                            </tr>
+                            <tr>
+                                <td><strong>框選整批移動</strong></td>
+                                <td>按住 <kbd>Shift</kbd> 拖曳空白處，或點「框選」按鈕</td>
+                                <td>開啟「框選」按鈕後單指拖曳框選</td>
+                            </tr>
+                            <tr>
+                                <td><strong>常用鍵盤快捷鍵</strong></td>
+                                <td colspan="2">
+                                    <kbd>Ctrl+Z</kbd> 復原　｜　<kbd>Ctrl+Y</kbd> 取消復原　｜　<kbd>Delete</kbd> 刪除選取　｜　<kbd>Esc</kbd> 關閉面板／取消選取　｜　<kbd>Enter</kbd> 確認輸入
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 詳細操作指南 -->
+            <section id="guides" class="section-card">
+                <h2 class="section-title"><i class="fas fa-list-ol"></i> 六、詳細步驟操作指南</h2>
+                <div class="guide-list">
+                    <div class="guide-block">
+                        <h3>1. 新增與編輯家庭成員</h3>
+                        <ol>
+                            <li>點擊<strong>「新增角色」</strong>（或先選取既有成員後，點擊快捷列的 <code>＋配偶 / ＋父母 / ＋子女 / ＋兄姐 / ＋弟妹</code>）。</li>
+                            <li>輸入姓名、選擇性別（男性／女性），並可選填生卒年份與備註，按 <kbd>Enter</kbd> 或「確認」完成。</li>
+                            <li>欲修改資料或上傳照片頭像時，雙擊該成員（或點「編輯角色」），修改完畢按「儲存變更」。</li>
+                        </ol>
+                    </div>
+                    <div class="guide-block">
+                        <h3>2. 設定多元家庭關係</h3>
+                        <ol>
+                            <li>點選第一位成員（主角，紅框標示），再點擊<strong>「設定關係」</strong>。</li>
+                            <li>點選第二位或多位成員（藍框標示；電腦按住 <kbd>Ctrl</kbd>、手機平板直接點擊即可多選）。</li>
+                            <li>在面板中點擊對應關係：<strong>配偶、前配偶(再婚)、父母、子女、養父母、養子女、兄姐、弟妹、雙胞胎</strong>。</li>
+                            <li>若需解除某段關係，直接<strong>雙擊該條連線</strong>即可。</li>
+                        </ol>
+                    </div>
+                    <div class="guide-block">
+                        <h3>3. 計算關係親等與路徑高亮</h3>
+                        <ol>
+                            <li>點選第一位成員，點擊<strong>「關係親等」</strong>進入查詢模式。</li>
+                            <li>點選畫布上任一成員，面板立即顯示親等結果與文字計算路徑（例如：<code>我 ↔ 丈夫 → 公公 → 哥哥 → 大姪女（共 3 親等）</code>）。</li>
+                            <li>畫布會同步以<strong>彩色粗線＋步驟編號圓點</strong>高亮路徑；直接改點其他成員即可連續查詢，不需關閉面板。</li>
+                        </ol>
+                    </div>
+                    <div class="guide-block">
+                        <h3>4. 大家族自動對齊與微調</h3>
+                        <ol>
+                            <li>建立好關係後點擊<strong>「自動對齊」</strong>，系統會依世代與子樹重心重新排版。</li>
+                            <li>若覺得太寬或太窄，直接拖動控制列的<strong>「寬窄（45–150）」</strong>與<strong>「層高（75–180）」</strong>滑桿即時微調。</li>
+                            <li>人數較多時，點擊<strong>「符合畫面」</strong>即可一次縮放呈現完整家族樹。</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 公民科親等與姻親速查 -->
+            <section id="kinship" class="section-card">
+                <h2 class="section-title"><i class="fas fa-project-diagram"></i> 七、親等與姻親計算規則說明（民法概念）</h2>
+                <p>本系統依據民法親等計算原則自動推算，並特別標出公民科最容易混淆的三種姻親類型：</p>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 180px;">親屬類別</th>
+                                <th>計算方式與系統標示範例</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>直系血親</strong></td>
+                                <td>從己身向上或向下數，一世為一親等（含養父母／養子女之擬制血親）。例：父母為 <code>1親等直系血親</code>、祖父母為 <code>2親等直系血親</code>。</td>
+                            </tr>
+                            <tr>
+                                <td><strong>旁系血親</strong></td>
+                                <td>從己身數至最近共同祖先，再向下數至該親屬，合計世數。例：親兄弟姊妹為 <code>2親等旁系血親</code>、伯叔姑舅姨為 <code>3親等旁系血親</code>、堂／表兄弟姊妹為 <code>4親等旁系血親</code>。</td>
+                            </tr>
+                            <tr>
+                                <td><strong>姻親(血配)</strong></td>
+                                <td><strong>血親之配偶</strong>（從血親親等）：例：媳婦／女婿為 <code>1親等直系姻親(血配)</code>；嫂嫂／弟媳／妹夫為 <code>2親等旁系姻親(血配)</code>；伯母／舅媽為 <code>3親等旁系姻親(血配)</code>。</td>
+                            </tr>
+                            <tr>
+                                <td><strong>姻親(配血)</strong></td>
+                                <td><strong>配偶之血親</strong>（從配偶與其血親之親等）：例：公婆／岳父母為 <code>1親等直系姻親(配血)</code>；大伯／小叔／大姑／小舅為 <code>2親等旁系姻親(配血)</code>。</td>
+                            </tr>
+                            <tr>
+                                <td><strong>姻親(配血配)</strong></td>
+                                <td><strong>配偶之血親之配偶</strong>（俗稱妯娌、連襟等）：例：丈夫哥哥的妻子（大嫂）為 <code>2親等旁系姻親(配血配)</code>。</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 匯出與分享 -->
+            <section id="export-share" class="section-card">
+                <h2 class="section-title"><i class="fas fa-share-alt"></i> 八、下載圖片、SVG 向量圖與一鍵分享</h2>
+                <ul>
+                    <li><strong>PNG 圖片（白底／透明）</strong>：點擊「下載圖片 / SVG」，預設勾選<strong>「自動緊貼裁切多餘白邊」</strong>，匯出時自動隱藏紅色／藍色選取框；若開啟「圖例」或「顯示所有親屬關係」則會完整保留在圖中。</li>
+                    <li><strong>SVG 向量圖</strong>：放進簡報（PowerPoint / Canva）或 Word 學習單時，無論怎麼放大列印都不會鋸齒模糊。</li>
+                    <li><strong>一鍵分享連結</strong>：點擊「分享連結」即可複製包含整張家族樹資料的專屬網址（無需伺服器），直接貼到 LINE、Classroom 或社群即可讓對方點開檢視。</li>
+                    <li><strong>匯出／匯入 JSON</strong>：完整保存所有成員、備註與頭像，適合長期備份與交作業。</li>
+                </ul>
+            </section>
+
+            <!-- 注意事項與 FAQ -->
+            <section id="notes-faq" class="section-card">
+                <h2 class="section-title"><i class="fas fa-question-circle"></i> 九、注意事項與常見問題（FAQ）</h2>
+
+                <h3>系統限制與注意事項</h3>
+                <ul>
+                    <li>每位成員最多可設定 <strong>2 位父母</strong>；現任配偶限 1 位，若需呈現再婚請使用<strong>「前配偶(再婚)」</strong>。</li>
+                    <li>系統具防呆檢查：禁止將自己或直系血親設為配偶，並自動防止世代循環（例如將子孫設為自己的父母）。</li>
+                    <li>自動儲存草稿存放於您目前的瀏覽器本機空間（<code>localStorage</code>），更換裝置或清除瀏覽器資料前，建議先「匯出 JSON」或複製「分享連結」。</li>
+                </ul>
+
+                <h3>常見問題</h3>
+                <details class="faq-item" open>
+                    <summary>Q1：手機或平板可以用來畫家族樹嗎？</summary>
+                    <p>可以！本系統完整支援觸控操作：單指按住角色直接拖曳移動、單指滑動空白處平移畫布、雙指捏合縮放、雙擊編輯或解除連線；在「設定關係」模式下，觸控裝置直接點擊成員即可多選，不需按 Ctrl 鍵。</p>
+                </details>
+                <details class="faq-item">
+                    <summary>Q2：大家族人物很多，畫面塞不下或太擠怎麼辦？</summary>
+                    <p>建議先點擊<strong>「自動對齊」</strong>，接著使用檢視列的<strong>「寬窄」</strong>滑桿（最低可調至 45）壓縮水平間距，再按<strong>「符合畫面」</strong>即可一眼全覽；想快速找特定成員可直接用「搜尋姓名」定位。</p>
+                </details>
+                <details class="faq-item">
+                    <summary>Q3：如何解除誤設的關係連線？</summary>
+                    <p>在畫布上直接<strong>雙擊</strong>那條配偶線、前配偶虛線或親子折線即可解除；若是剛做錯操作，也可以直接按「復原」（<kbd>Ctrl+Z</kbd>）。</p>
+                </details>
+                <details class="faq-item">
+                    <summary>Q4：如何把老師設計好的家族樹題目直接傳給學生？</summary>
+                    <p>畫好後直接點下方的<strong>「分享連結」</strong>，把複製好的網址貼到班級群組或 Google Classroom，學生點開網址就會直接載入整張家族樹，完全不用下載或匯入 JSON 檔案！</p>
+                </details>
+            </section>
+
+        </main>
+    </div>
+
+    <footer class="footer">
+        <a class="footer-fb-link" href="https://www.facebook.com/happyliyuchilltiger/" target="_blank" rel="noopener noreferrer" title="前往快樂鯉魚秋老虎 Facebook 粉絲專頁">
+            <i class="fab fa-facebook"></i>
+            <span>快樂鯉魚秋老虎</span>
+        </a>
+        <div>Copyright © Liyuchiutiger Gongminshen</div>
+    </footer>
+
+    <!-- 右上角回主頁按鈕（與主頁 #manualButton 互相呼應） -->
+    <div id="homeButton" title="回到家庭樹狀圖繪製系統">
+        <a href="index.html">
+            <i class="fas fa-home"></i>
+        </a>
+    </div>
+
+    <!-- 吉祥物元素（可自由拖曳與點擊粒子特效） -->
+    <img id="mascot" src="image/LiyuChillGuy.svg" alt="LiyuChillGuy Mascot" draggable="false" title="點擊有驚喜，按住可自由拖曳">
+
+    <script>
+        const THEME_KEY = 'familyTree_theme_v1';
+        const themeSelect = document.getElementById('themeSelect');
+
+        function changeManualTheme(theme) {
+            document.body.classList.remove('theme-dark', 'theme-print');
+            if (theme === 'dark') document.body.classList.add('theme-dark');
+            if (theme === 'print') document.body.classList.add('theme-print');
+            themeSelect.value = theme;
+            try {
+                localStorage.setItem(THEME_KEY, theme);
+            } catch (_) {}
+        }
+
+        // 自動同步主系統的三種主題設定（淺色／深色／列印黑白）
+        try {
+            const savedTheme = localStorage.getItem(THEME_KEY);
+            if (savedTheme && ['light', 'dark', 'print'].includes(savedTheme)) {
+                changeManualTheme(savedTheme);
+            }
+        } catch (_) {}
+
+        // ==================== 互動程式繪製指導教學動畫引擎（8 大完整劇本） ====================
+        const demoCanvas = document.getElementById('demoCanvas');
+        const dctx = demoCanvas.getContext('2d');
+        const demoStepBadge = document.getElementById('demoStepBadge');
+        const demoCaptionText = document.getElementById('demoCaptionText');
+        const demoProgressBar = document.getElementById('demoProgressBar');
+        const demoProgressFill = document.getElementById('demoProgressFill');
+        const demoSceneCounter = document.getElementById('demoSceneCounter');
+        const demoPlayBtn = document.getElementById('demoPlayBtn');
+        const demoAutoNext = document.getElementById('demoAutoNext');
+
+        const DEMO_W = 780;
+        const DEMO_H = 360;
+        const DEMO_R = 19;
+
+        function initDemoCanvasResolution() {
+            const dpr = window.devicePixelRatio || 2;
+            demoCanvas.width = DEMO_W * dpr;
+            demoCanvas.height = DEMO_H * dpr;
+            dctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        initDemoCanvasResolution();
+
+        let currentScene = 0;
+        let sceneTime = 0;
+        let demoPlaying = true;
+        let lastFrameTs = null;
+        const SCENE_DURATIONS = [9.5, 9.0, 9.5, 7.8, 9.5, 11.0, 9.5, 10.0];
+
+        function easeOutCubic(t) {
+            const c = Math.max(0, Math.min(1, t));
+            return 1 - Math.pow(1 - c, 3);
+        }
+        function easeInOutQuad(t) {
+            const c = Math.max(0, Math.min(1, t));
+            return c < 0.5 ? 2 * c * c : 1 - Math.pow(-2 * c + 2, 2) / 2;
+        }
+        function lerp(a, b, t) {
+            return a + (b - a) * Math.max(0, Math.min(1, t));
+        }
+
+        function getDemoPalette() {
+            if (document.body.classList.contains('theme-dark')) {
+                return { bg: '#181d27', grid: 'rgba(255,255,255,0.04)', stroke: '#e2e8f0', line: '#cbd5e1', fill: '#242b3b', text: '#f1f5f9', muted: '#94a3b8', pillBg: '#232a38', pillBorder: '#3b465c', labelBg: 'rgba(24,29,39,0.9)' };
+            }
+            if (document.body.classList.contains('theme-print')) {
+                return { bg: '#ffffff', grid: 'rgba(0,0,0,0.04)', stroke: '#000000', line: '#000000', fill: '#ffffff', text: '#000000', muted: '#333333', pillBg: '#ffffff', pillBorder: '#000000', labelBg: 'rgba(255,255,255,0.95)' };
+            }
+            return { bg: '#ffffff', grid: 'rgba(0,0,0,0.035)', stroke: '#222222', line: '#333333', fill: '#ffffff', text: '#222222', muted: '#666666', pillBg: '#f8f9fa', pillBorder: '#d8dee6', labelBg: 'rgba(255,255,255,0.92)' };
+        }
+
+        function drawRoundRectPath(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            if (ctx.roundRect) ctx.roundRect(x, y, w, h, r);
+            else ctx.rect(x, y, w, h);
+        }
+
+        function drawDemoBackground(p) {
+            dctx.fillStyle = p.bg;
+            dctx.fillRect(0, 0, DEMO_W, DEMO_H);
+            dctx.fillStyle = p.grid;
+            for (let gx = 20; gx < DEMO_W; gx += 26) {
+                for (let gy = 20; gy < DEMO_H; gy += 26) {
+                    dctx.fillRect(gx, gy, 2, 2);
+                }
+            }
+        }
+
+        function drawDemoNode(x, y, gender, name, opts = {}) {
+            const p = getDemoPalette();
+            const { scale = 1, stroke = p.stroke, dead = false, dashed = false, hasNote = false, years = '', subLines = [], subColor = '' } = opts;
+            if (scale <= 0.01) return;
+            dctx.save();
+            dctx.translate(x, y);
+            dctx.scale(scale, scale);
+
+            dctx.fillStyle = p.fill;
+            dctx.strokeStyle = stroke;
+            dctx.lineWidth = stroke === p.stroke ? 1.8 : 2.8;
+            if (dashed) dctx.setLineDash([5, 4]);
+            dctx.beginPath();
+            if (gender === 'male') {
+                dctx.rect(-DEMO_R, -DEMO_R, DEMO_R * 2, DEMO_R * 2);
+            } else {
+                dctx.arc(0, 0, DEMO_R, 0, Math.PI * 2);
+            }
+            dctx.fill();
+            dctx.stroke();
+            dctx.setLineDash([]);
+
+            if (dead) {
+                dctx.beginPath();
+                dctx.moveTo(-13, -13); dctx.lineTo(13, 13);
+                dctx.moveTo(13, -13); dctx.lineTo(-13, 13);
+                dctx.stroke();
+            }
+
+            if (hasNote) {
+                dctx.fillStyle = '#1976D2';
+                dctx.beginPath();
+                dctx.arc(DEMO_R - 2, -DEMO_R + 2, 3.8, 0, Math.PI * 2);
+                dctx.fill();
+            }
+
+            dctx.font = '13px "Microsoft JhengHei", Arial, sans-serif';
+            dctx.fillStyle = p.text;
+            dctx.textAlign = 'center';
+            dctx.textBaseline = 'top';
+            dctx.fillText(name, 0, DEMO_R + 5);
+
+            if (years && subLines.length === 0) {
+                dctx.font = '10.5px "Microsoft JhengHei", Arial, sans-serif';
+                dctx.fillStyle = p.muted;
+                dctx.fillText(years, 0, DEMO_R + 21);
+            }
+
+            if (subLines.length > 0) {
+                dctx.font = 'bold 10.5px "Microsoft JhengHei", Arial, sans-serif';
+                const maxW = Math.max(...subLines.map(l => dctx.measureText(l).width));
+                dctx.fillStyle = p.labelBg;
+                dctx.fillRect(-maxW / 2 - 3, DEMO_R + 21, maxW + 6, subLines.length * 13 + 2);
+                dctx.fillStyle = subColor || stroke;
+                subLines.forEach((line, idx) => {
+                    dctx.fillText(line, 0, DEMO_R + 22 + idx * 13);
+                });
+            }
+            dctx.restore();
+        }
+
+        function drawDemoSpouseLine(ax, ay, bx, by, progress = 1, color = null, dashed = false) {
+            if (progress <= 0) return;
+            const p = getDemoPalette();
+            const lx = Math.min(ax, bx) + DEMO_R;
+            const rx = Math.max(ax, bx) - DEMO_R;
+            const y = (ay + by) / 2;
+            const endX = lerp(lx, rx, easeOutCubic(progress));
+            dctx.save();
+            dctx.strokeStyle = color || p.line;
+            dctx.lineWidth = 3;
+            if (dashed) dctx.setLineDash([6, 4]);
+            dctx.beginPath();
+            dctx.moveTo(lx, y);
+            dctx.lineTo(endX, y);
+            dctx.stroke();
+            dctx.restore();
+        }
+
+        function drawDemoParentChild(px, py, children, turnYOverride = null, progress = 1, dashed = false) {
+            if (progress <= 0 || children.length === 0) return;
+            const p = getDemoPalette();
+            const minChildTop = Math.min(...children.map(c => c.y - DEMO_R));
+            const turnY = turnYOverride !== null ? turnYOverride : (py + 38 + minChildTop) / 2;
+            dctx.save();
+            dctx.globalAlpha = Math.min(1, progress);
+            dctx.strokeStyle = p.line;
+            dctx.lineWidth = 1.6;
+            if (dashed) dctx.setLineDash([6, 4]);
+            dctx.beginPath();
+            dctx.moveTo(px, py);
+            dctx.lineTo(px, turnY);
+            children.forEach(c => {
+                dctx.moveTo(px, turnY);
+                dctx.lineTo(c.x, turnY);
+                dctx.lineTo(c.x, c.y - DEMO_R);
+            });
+            dctx.stroke();
+            dctx.restore();
+        }
+
+        function drawDemoButton(x, y, w, h, label, bgColor, pressed = false) {
+            dctx.save();
+            const s = pressed ? 0.94 : 1;
+            dctx.translate(x + w / 2, y + h / 2);
+            dctx.scale(s, s);
+            dctx.fillStyle = bgColor;
+            drawRoundRectPath(dctx, -w / 2, -h / 2, w, h, 6);
+            dctx.fill();
+            dctx.fillStyle = '#ffffff';
+            dctx.font = 'bold 12px "Microsoft JhengHei", Arial, sans-serif';
+            dctx.textAlign = 'center';
+            dctx.textBaseline = 'middle';
+            dctx.fillText(label, 0, 0.5);
+            dctx.restore();
+        }
+
+        function drawDemoPanel(x, y, w, h, title) {
+            const p = getDemoPalette();
+            dctx.save();
+            dctx.shadowColor = 'rgba(0,0,0,0.16)';
+            dctx.shadowBlur = 12;
+            dctx.shadowOffsetY = 4;
+            dctx.fillStyle = p.fill;
+            dctx.strokeStyle = p.pillBorder;
+            dctx.lineWidth = 1.2;
+            drawRoundRectPath(dctx, x, y, w, h, 8);
+            dctx.fill();
+            dctx.shadowBlur = 0;
+            dctx.shadowOffsetY = 0;
+            dctx.stroke();
+            dctx.fillStyle = p.text;
+            dctx.font = 'bold 12.5px "Microsoft JhengHei", Arial, sans-serif';
+            dctx.textAlign = 'left';
+            dctx.textBaseline = 'top';
+            dctx.fillText(title, x + 12, y + 10);
+            dctx.strokeStyle = p.pillBorder;
+            dctx.beginPath();
+            dctx.moveTo(x + 10, y + 30);
+            dctx.lineTo(x + w - 10, y + 30);
+            dctx.stroke();
+            dctx.restore();
+        }
+
+        function drawDemoCursor(x, y, clickRipple = 0) {
+            dctx.save();
+            if (clickRipple > 0 && clickRipple < 1) {
+                dctx.strokeStyle = `rgba(26, 115, 232, ${1 - clickRipple})`;
+                dctx.lineWidth = 2.5;
+                dctx.beginPath();
+                dctx.arc(x, y, 6 + clickRipple * 22, 0, Math.PI * 2);
+                dctx.stroke();
+            }
+            dctx.translate(x, y);
+            dctx.fillStyle = '#111827';
+            dctx.strokeStyle = '#ffffff';
+            dctx.lineWidth = 1.8;
+            dctx.beginPath();
+            dctx.moveTo(0, 0);
+            dctx.lineTo(0, 18);
+            dctx.lineTo(5, 14);
+            dctx.lineTo(9, 22);
+            dctx.lineTo(12, 20.5);
+            dctx.lineTo(8, 13);
+            dctx.lineTo(14, 13);
+            dctx.closePath();
+            dctx.fill();
+            dctx.stroke();
+            dctx.restore();
+        }
+
+        function drawTouchFinger(x, y, active = true) {
+            dctx.save();
+            dctx.fillStyle = active ? 'rgba(26, 115, 232, 0.25)' : 'rgba(26, 115, 232, 0.12)';
+            dctx.strokeStyle = '#1A73E8';
+            dctx.lineWidth = 2;
+            dctx.beginPath();
+            dctx.arc(x, y, 14, 0, Math.PI * 2);
+            dctx.fill();
+            dctx.stroke();
+            dctx.fillStyle = '#1A73E8';
+            dctx.beginPath();
+            dctx.arc(x, y, 4, 0, Math.PI * 2);
+            dctx.fill();
+            dctx.restore();
+        }
+
+        function drawDemoBanner(text, color = '#1A73E8', by = 14) {
+            dctx.save();
+            dctx.font = 'bold 12.5px "Microsoft JhengHei", Arial, sans-serif';
+            const tw = dctx.measureText(text).width + 24;
+            const bx = (DEMO_W - tw) / 2;
+            dctx.fillStyle = color;
+            drawRoundRectPath(dctx, bx, by, tw, 26, 13);
+            dctx.fill();
+            dctx.fillStyle = '#fff';
+            dctx.textAlign = 'center';
+            dctx.textBaseline = 'middle';
+            dctx.fillText(text, DEMO_W / 2, by + 13.5);
+            dctx.restore();
+        }
+
+        // ==================== 劇本 0：新增角色、設定狀態（死亡）、編輯年份與備註 ====================
+        function renderSceneAddEditStatus(t) {
+            const p = getDemoPalette();
+            drawDemoBackground(p);
+
+            // 模擬上方工具列
+            drawDemoButton(225, 16, 86, 26, '新增角色', '#8B4513', t >= 0.9 && t <= 1.15);
+            drawDemoButton(321, 16, 86, 26, '編輯角色', '#8B4513', t >= 5.2 && t <= 5.45);
+            drawDemoButton(417, 16, 86, 26, '設定狀態', '#D93025', t >= 3.4 && t <= 3.65);
+
+            const gp = { x: 250, y: 185 };
+
+            // 模擬「新增角色」面板與打字效果
+            if (t >= 1.15 && t < 2.8) {
+                drawDemoPanel(365, 78, 220, 148, '新增角色');
+                dctx.save();
+                dctx.textAlign = 'left';
+                dctx.textBaseline = 'middle';
+                dctx.fillStyle = p.muted;
+                dctx.font = '11.5px "Microsoft JhengHei", Arial, sans-serif';
+                dctx.fillText('姓名：', 378, 122);
+                dctx.fillStyle = p.pillBg;
+                dctx.strokeStyle = '#1A73E8';
+                dctx.lineWidth = 1.2;
+                dctx.fillRect(378, 134, 192, 26);
+                dctx.strokeRect(378, 134, 192, 26);
+                const typed = t < 1.6 ? '' : (t < 1.9 ? '爺' : '爺爺');
+                dctx.fillStyle = p.text;
+                dctx.font = '13px "Microsoft JhengHei", Arial, sans-serif';
+                dctx.fillText(typed + (Math.floor(t * 6) % 2 === 0 ? '|' : ''), 386, 147.5);
+                dctx.fillStyle = p.muted;
+                dctx.font = '11.5px "Microsoft JhengHei", Arial, sans-serif';
+                dctx.fillText('性別：● 男性   ○ 女性', 378, 174);
+                dctx.restore();
+                drawDemoButton(440, 192, 68, 24, '確認', '#1976D2', t >= 2.45 && t <= 2.75);
+            }
+
+            // 模擬「設定狀態」面板
+            if (t >= 3.65 && t < 5.0) {
+                drawDemoPanel(365, 92, 220, 105, '設定狀態（已選：爺爺）');
+                drawDemoButton(380, 132, 46, 24, '正常', '#1976D2', false);
+                drawDemoButton(432, 132, 46, 24, '死亡', '#D93025', t >= 4.4 && t <= 4.7);
+                drawDemoButton(484, 132, 46, 24, '離婚', '#1976D2', false);
+                drawDemoButton(536, 132, 40, 24, '失蹤', '#1976D2', false);
+            }
+
+            // 模擬「編輯角色」面板（填寫年份與備註）
+            if (t >= 5.45 && t < 7.8) {
+                drawDemoPanel(365, 72, 235, 178, '編輯角色（爺爺）');
+                dctx.save();
+                dctx.textAlign = 'left';
+                dctx.textBaseline = 'middle';
+                dctx.fillStyle = p.muted;
+                dctx.font = '11.5px "Microsoft JhengHei", Arial, sans-serif';
+                dctx.fillText('生卒年份：', 378, 114);
+                dctx.fillStyle = p.pillBg;
+                dctx.strokeStyle = '#1A73E8';
+                dctx.lineWidth = 1.2;
+                dctx.fillRect(378, 126, 205, 24);
+                dctx.strokeRect(378, 126, 205, 24);
+                const yrs = '1945-2020'.slice(0, Math.floor(Math.max(0, (t - 5.7) * 14)));
+                dctx.fillStyle = p.text;
+                dctx.font = '12.5px "Microsoft JhengHei", Arial, sans-serif';
+                dctx.fillText(yrs, 385, 138.5);
+
+                dctx.fillStyle = p.muted;
+                dctx.font = '11.5px "Microsoft JhengHei", Arial, sans-serif';
+                dctx.fillText('備註說明：', 378, 164);
+                dctx.fillStyle = p.pillBg;
+                dctx.strokeStyle = '#1A73E8';
+                dctx.fillRect(378, 176, 205, 24);
+                dctx.strokeRect(378, 176, 205, 24);
+                const note = '喜歡下棋與泡茶'.slice(0, Math.floor(Math.max(0, (t - 6.4) * 12)));
+                dctx.fillStyle = p.text;
+                dctx.font = '12.5px "Microsoft JhengHei", Arial, sans-serif';
+                dctx.fillText(note, 385, 188.5);
+                dctx.restore();
+                drawDemoButton(442, 214, 78, 24, '儲存變更', '#1976D2', t >= 7.45 && t <= 7.75);
+            }
+
+            // 成員節點出現
+            if (t >= 2.75) {
+                const sc = easeOutCubic((t - 2.75) / 0.35);
+                drawDemoNode(gp.x, gp.y, 'male', '爺爺', {
+                    scale: sc,
+                    stroke: t >= 3.2 && t < 8.2 ? '#D93025' : p.stroke,
+                    dead: t >= 4.7,
+                    hasNote: t >= 7.75,
+                    years: t >= 7.75 ? '1945-2020' : ''
+                });
+            }
+
+            // 最後顯示懸停備註卡片
+            if (t >= 8.0) {
+                drawDemoPanel(310, 145, 230, 82, '爺爺 資訊與關係');
+                dctx.save();
+                dctx.fillStyle = p.text;
+                dctx.font = '12px "Microsoft JhengHei", Arial, sans-serif';
+                dctx.textAlign = 'left';
+                dctx.textBaseline = 'middle';
+                dctx.fillText('年份：1945-2020', 322, 190);
+                dctx.fillText('備註：喜歡下棋與泡茶', 322, 210);
+                dctx.restore();
+            }
+
+            // 游標與步驟字幕
+            if (t < 2.8) {
+                const cx = t < 1.15 ? lerp(170, 268, easeInOutQuad(t / 0.9)) : lerp(268, 474, easeInOutQuad((t - 1.15) / 1.2));
+                const cy = t < 1.15 ? lerp(180, 29, easeInOutQuad(t / 0.9)) : lerp(29, 204, easeInOutQuad((t - 1.15) / 1.2));
+                const rp = (t >= 0.9 && t < 1.25) ? (t - 0.9) / 0.35 : ((t >= 2.45 && t < 2.8) ? (t - 2.45) / 0.35 : 0);
+                drawDemoCursor(cx, cy, rp);
+                setDemoCaption('步驟 1', '點擊「新增角色」，輸入姓名並選擇性別（按 Enter 即可快速確認）');
+            } else if (t < 5.0) {
+                const u = easeInOutQuad((t - 2.8) / 0.6);
+                const cx = t < 3.65 ? lerp(474, 460, u) : lerp(460, 455, easeInOutQuad((t - 3.65) / 0.7));
+                const cy = t < 3.65 ? lerp(204, 29, u) : lerp(29, 144, easeInOutQuad((t - 3.65) / 0.7));
+                const rp = (t >= 3.4 && t < 3.75) ? (t - 3.4) / 0.35 : ((t >= 4.4 && t < 4.75) ? (t - 4.4) / 0.35 : 0);
+                drawDemoCursor(cx, cy, rp);
+                setDemoCaption('步驟 2', '點擊「設定狀態」→「死亡」，節點立即加上標準家系圖交叉線 ✕');
+            } else if (t < 7.9) {
+                const cx = t < 5.45 ? lerp(455, 364, easeInOutQuad((t - 5.0) / 0.4)) : lerp(364, 481, easeInOutQuad((t - 5.45) / 1.9));
+                const cy = t < 5.45 ? lerp(144, 29, easeInOutQuad((t - 5.0) / 0.4)) : lerp(29, 226, easeInOutQuad((t - 5.45) / 1.9));
+                const rp = (t >= 5.2 && t < 5.55) ? (t - 5.2) / 0.35 : ((t >= 7.45 && t < 7.8) ? (t - 7.45) / 0.35 : 0);
+                drawDemoCursor(cx, cy, rp);
+                setDemoCaption('步驟 3', '點擊「編輯角色」（或雙擊節點），可補充生卒年份、備註與照片頭像');
+            } else {
+                drawDemoCursor(gp.x + 8, gp.y + 4, 0);
+                setDemoCaption('完成', '含備註的成員右上角會出現藍點提示，滑鼠懸停即可查看完整資訊！');
+            }
+        }
+
+        // ==================== 劇本 1：一鍵快速建樹 ====================
+        function renderSceneQuickBuild(t) {
+            const p = getDemoPalette();
+            drawDemoBackground(p);
+
+            const dad = { x: 330, y: 135 };
+            const mom = { x: 450, y: 135 };
+            const me = { x: 330, y: 265 };
+            const bro = { x: 450, y: 265 };
+
+            if (t >= 1.2) {
+                const barAlpha = easeOutCubic((t - 1.2) / 0.35);
+                dctx.save();
+                dctx.globalAlpha = barAlpha;
+                dctx.fillStyle = p.pillBg;
+                dctx.strokeStyle = p.pillBorder;
+                dctx.lineWidth = 1;
+                drawRoundRectPath(dctx, 175, 18, 430, 36, 8);
+                dctx.fill();
+                dctx.stroke();
+
+                dctx.fillStyle = p.text;
+                dctx.font = 'bold 12.5px "Microsoft JhengHei", Arial, sans-serif';
+                dctx.textAlign = 'left';
+                dctx.textBaseline = 'middle';
+                dctx.fillText('已選：爸爸', 190, 36);
+
+                drawDemoButton(270, 24, 68, 24, '＋配偶', '#E67E00', t >= 2.2 && t <= 2.45);
+                drawDemoButton(346, 24, 68, 24, '＋父母', '#2E7D32', false);
+                drawDemoButton(422, 24, 68, 24, '＋子女', '#00796B', (t >= 4.4 && t <= 4.65) || (t >= 6.4 && t <= 6.65));
+                drawDemoButton(498, 24, 68, 24, '＋兄姐', '#5E35B1', false);
+                dctx.restore();
+            }
+
+            if (t >= 2.55) drawDemoSpouseLine(dad.x, dad.y, mom.x, mom.y, (t - 2.55) / 0.45);
+            const visibleChildren = [];
+            if (t >= 4.75) visibleChildren.push(me);
+            if (t >= 6.75) visibleChildren.push(bro);
+            if (visibleChildren.length > 0) {
+                drawDemoParentChild((dad.x + mom.x) / 2, dad.y, visibleChildren, 205, visibleChildren.length === 1 ? (t - 4.75) / 0.4 : 1);
+            }
+
+            drawDemoNode(dad.x, dad.y, 'male', '爸爸', { stroke: t >= 1.1 ? '#D93025' : p.stroke });
+            if (t >= 2.5) drawDemoNode(mom.x, mom.y, 'female', '媽媽', { scale: easeOutCubic((t - 2.5) / 0.4) });
+            if (t >= 4.7) drawDemoNode(me.x, me.y, 'female', '我', { scale: easeOutCubic((t - 4.7) / 0.4) });
+            if (t >= 6.7) drawDemoNode(bro.x, bro.y, 'male', '哥哥', { scale: easeOutCubic((t - 6.7) / 0.4) });
+
+            let cx = 240, cy = 235, ripple = 0;
+            if (t < 1.2) {
+                const u = easeInOutQuad(t / 1.0);
+                cx = lerp(240, dad.x, u); cy = lerp(235, dad.y, u);
+                if (t >= 1.0) ripple = (t - 1.0) / 0.35;
+                setDemoCaption('步驟 1', '點選畫布上的「爸爸」，上方自動出現一鍵快速新增親屬列');
+            } else if (t < 3.6) {
+                const u = easeInOutQuad((t - 1.2) / 1.0);
+                cx = lerp(dad.x, 304, u); cy = lerp(dad.y, 36, u);
+                if (t >= 2.2) ripple = (t - 2.2) / 0.35;
+                setDemoCaption('步驟 2', '點擊「＋配偶」，輸入「媽媽」後自動建立節點並連上配偶粗線');
+            } else if (t < 5.7) {
+                const u = easeInOutQuad((t - 3.6) / 0.8);
+                cx = lerp(304, 456, u); cy = 36;
+                if (t >= 4.4) ripple = (t - 4.4) / 0.35;
+                setDemoCaption('步驟 3', '點擊「＋子女」，輸入「我」，系統自動關聯爸爸與媽媽並畫好折線');
+            } else {
+                cx = 456; cy = 36;
+                if (t >= 6.4) ripple = (t - 6.4) / 0.35;
+                setDemoCaption('步驟 4', '再次點擊「＋子女」新增「哥哥」，幾秒內就能快速長出整座家族樹！');
+            }
+            drawDemoCursor(cx, cy, ripple);
+        }
+
+        // ==================== 劇本 2：特殊關係（收養虛線、雙胞胎倒V、前配偶再婚） ====================
+        function renderSceneSpecialRelations(t) {
+            const p = getDemoPalette();
+            drawDemoBackground(p);
+
+            const ex = { x: 165, y: 120 };
+            const dad = { x: 345, y: 120 };
+            const mom = { x: 455, y: 120 };
+            const adopt = { x: 265, y: 265 };
+            const twinA = { x: 415, y: 265 };
+            const twinB = { x: 515, y: 265 };
+
+            // 上方模擬關係按鈕
+            drawDemoButton(215, 16, 98, 26, '養子女(虛線)', '#546E7A', t >= 1.2 && t <= 1.5);
+            drawDemoButton(325, 16, 100, 26, '雙胞胎(倒V)', '#546E7A', t >= 4.2 && t <= 4.5);
+            drawDemoButton(437, 16, 118, 26, '前配偶(再婚)', '#546E7A', t >= 7.0 && t <= 7.3);
+
+            // 現任配偶線
+            drawDemoSpouseLine(dad.x, dad.y, mom.x, mom.y, 1);
+
+            // 1. 收養（虛線親子折線）
+            if (t >= 1.5) {
+                const prog = easeOutCubic((t - 1.5) / 0.6);
+                drawDemoParentChild((dad.x + mom.x) / 2, dad.y, [adopt], 195, prog, true);
+                if (t >= 2.0 && t < 4.2) drawDemoBanner('收養關係：以虛線親子線標示（民法上視同直系血親）', '#1976D2', 52);
+            }
+
+            // 2. 雙胞胎（倒 V 分支線）
+            if (t >= 4.5) {
+                const prog = easeOutCubic((t - 4.5) / 0.6);
+                const midX = (dad.x + mom.x) / 2;
+                const turnY = 195;
+                const apexX = (twinA.x + twinB.x) / 2;
+                dctx.save();
+                dctx.globalAlpha = prog;
+                dctx.strokeStyle = p.line;
+                dctx.lineWidth = 1.8;
+                dctx.beginPath();
+                dctx.moveTo(midX, dad.y);
+                dctx.lineTo(midX, turnY);
+                dctx.lineTo(apexX, turnY);
+                dctx.lineTo(twinA.x, twinA.y - DEMO_R);
+                dctx.moveTo(apexX, turnY);
+                dctx.lineTo(twinB.x, twinB.y - DEMO_R);
+                dctx.stroke();
+                dctx.restore();
+                if (t >= 4.9 && t < 7.0) drawDemoBanner('雙胞胎：由同一分支點向下畫出經典「倒 V 字形」連線', '#2E8B57', 52);
+            }
+
+            // 3. 前配偶（上方虛線折線）
+            if (t >= 7.3) {
+                const prog = easeOutCubic((t - 7.3) / 0.6);
+                const topY = dad.y - DEMO_R - 18;
+                dctx.save();
+                dctx.globalAlpha = prog;
+                dctx.strokeStyle = p.muted;
+                dctx.lineWidth = 1.8;
+                dctx.setLineDash([4, 4]);
+                dctx.beginPath();
+                dctx.moveTo(ex.x, ex.y - DEMO_R);
+                dctx.lineTo(ex.x, topY);
+                dctx.lineTo(dad.x, topY);
+                dctx.lineTo(dad.x, dad.y - DEMO_R);
+                dctx.stroke();
+                dctx.restore();
+                drawDemoBanner('前配偶（再婚）：可同時呈現前段婚姻虛線與現任配偶實線！', '#7B1FA2', 52);
+            }
+
+            // 繪製節點
+            drawDemoNode(ex.x, ex.y, 'female', '前妻', { dashed: true, stroke: t >= 7.0 ? '#7B1FA2' : p.stroke });
+            drawDemoNode(dad.x, dad.y, 'male', '爸爸', { stroke: '#D93025' });
+            drawDemoNode(mom.x, mom.y, 'female', '媽媽');
+            drawDemoNode(adopt.x, adopt.y, 'male', '養子', { stroke: t >= 1.2 && t < 4.2 ? '#1A73E8' : p.stroke });
+            drawDemoNode(twinA.x, twinA.y, 'female', '雙胞胎姊', { stroke: t >= 4.2 && t < 7.0 ? '#2E8B57' : p.stroke });
+            drawDemoNode(twinB.x, twinB.y, 'female', '雙胞胎妹', { stroke: t >= 4.2 && t < 7.0 ? '#2E8B57' : p.stroke });
+
+            // 游標與步驟解說
+            if (t < 3.6) {
+                const cx = lerp(345, 264, easeInOutQuad(Math.min(1, t / 1.1)));
+                const cy = lerp(120, 29, easeInOutQuad(Math.min(1, t / 1.1)));
+                drawDemoCursor(cx, cy, t >= 1.2 && t < 1.55 ? (t - 1.2) / 0.35 : 0);
+                setDemoCaption('步驟 1', '在「設定關係」選擇「養父母／養子女」，系統會以虛線繪製收養親子線');
+            } else if (t < 6.4) {
+                const cx = lerp(264, 375, easeInOutQuad(Math.min(1, (t - 3.6) / 0.6)));
+                drawDemoCursor(cx, 29, t >= 4.2 && t < 4.55 ? (t - 4.2) / 0.35 : 0);
+                setDemoCaption('步驟 2', '選取兩位手足點擊「雙胞胎」，自動合併為專業家系圖的倒 V 分支線');
+            } else {
+                const cx = lerp(375, 496, easeInOutQuad(Math.min(1, (t - 6.4) / 0.6)));
+                drawDemoCursor(cx, 29, t >= 7.0 && t < 7.35 ? (t - 7.0) / 0.35 : 0);
+                setDemoCaption('步驟 3', '需要畫再婚家庭時，點「前配偶(再婚)」就能輕鬆呈現多段婚姻關係！');
+            }
+        }
+
+        // ==================== 劇本 3：智慧自動對齊 ====================
+        function renderSceneAutoAlign(t) {
+            const p = getDemoPalette();
+            drawDemoBackground(p);
+
+            const startNodes = [
+                { name: '爺爺', g: 'male', dead: true, x: 520, y: 100 },
+                { name: '奶奶', g: 'female', dead: true, x: 600, y: 130 },
+                { name: '外公', g: 'male', dead: true, x: 180, y: 105 },
+                { name: '外婆', g: 'female', dead: true, x: 255, y: 88 },
+                { name: '姑姑', g: 'female', x: 650, y: 220 },
+                { name: '爸爸', g: 'male', x: 150, y: 220 },
+                { name: '媽媽', g: 'female', x: 420, y: 190 },
+                { name: '我', g: 'female', x: 560, y: 305 },
+                { name: '哥哥', g: 'male', x: 230, y: 310 }
+            ];
+            const endNodes = [
+                { x: 210, y: 98 },
+                { x: 300, y: 98 },
+                { x: 495, y: 98 },
+                { x: 585, y: 98 },
+                { x: 165, y: 200 },
+                { x: 345, y: 200 },
+                { x: 540, y: 200 },
+                { x: 390, y: 300 },
+                { x: 495, y: 300 }
+            ];
+
+            const alignU = t < 2.2 ? 0 : easeOutCubic((t - 2.2) / 1.4);
+            const curr = startNodes.map((n, i) => ({
+                ...n,
+                x: lerp(n.x, endNodes[i].x, alignU),
+                y: lerp(n.y, endNodes[i].y, alignU)
+            }));
+
+            drawDemoButton(335, 16, 110, 26, '自動對齊', '#2E8B57', t >= 2.0 && t <= 2.3);
+
+            drawDemoSpouseLine(curr[0].x, curr[0].y, curr[1].x, curr[1].y, 1);
+            drawDemoSpouseLine(curr[2].x, curr[2].y, curr[3].x, curr[3].y, 1);
+            drawDemoSpouseLine(curr[5].x, curr[5].y, curr[6].x, curr[6].y, 1);
+
+            drawDemoParentChild((curr[0].x + curr[1].x) / 2, (curr[0].y + curr[1].y) / 2, [curr[4], curr[5]], 155, 1);
+            drawDemoParentChild((curr[2].x + curr[3].x) / 2, (curr[2].y + curr[3].y) / 2, [curr[6]], 163, 1);
+            drawDemoParentChild((curr[5].x + curr[6].x) / 2, (curr[5].y + curr[6].y) / 2, [curr[7], curr[8]], 256, 1);
+
+            curr.forEach(n => drawDemoNode(n.x, n.y, n.g, n.name, { dead: n.dead }));
+
+            if (t < 2.0) {
+                const u = easeInOutQuad(t / 1.8);
+                drawDemoCursor(lerp(620, 390, u), lerp(255, 29, u), 0);
+                setDemoCaption('步驟 1', '成員一多手動擺放容易交錯雜亂，點擊上方「自動對齊」按鈕');
+            } else if (t < 3.8) {
+                drawDemoCursor(390, 29, t < 2.45 ? (t - 2.0) / 0.45 : 0);
+                setDemoCaption('步驟 2', '系統以子樹重心排版：父母對齊子女正上方、外公外婆就近對齊媽媽');
+            } else {
+                drawDemoBanner('已完成自動對齊！不同家庭折線分層錯開、零交叉', '#2E8B57');
+                setDemoCaption('完成', '對齊後還可搭配「寬窄／層高」滑桿微調間距，讓大家族更好看！');
+            }
+        }
+
+        // ==================== 劇本 4：寬窄滑桿、符合畫面與搜尋定位 ====================
+        function renderSceneZoomSpacingSearch(t) {
+            const p = getDemoPalette();
+            drawDemoBackground(p);
+
+            // 模擬檢視控制列
+            dctx.fillStyle = p.pillBg;
+            dctx.strokeStyle = p.pillBorder;
+            drawRoundRectPath(dctx, 40, 14, 700, 36, 8);
+            dctx.fill();
+            dctx.stroke();
+
+            // 搜尋框
+            dctx.fillStyle = p.fill;
+            dctx.strokeStyle = t >= 5.6 ? '#1A73E8' : p.pillBorder;
+            dctx.strokeRect(54, 20, 118, 24);
+            const q = t < 5.8 ? '搜尋姓名...' : '大姪女'.slice(0, Math.ceil((t - 5.8) * 4));
+            dctx.fillStyle = t < 5.8 ? p.muted : p.text;
+            dctx.font = '12px "Microsoft JhengHei", Arial, sans-serif';
+            dctx.textAlign = 'left';
+            dctx.textBaseline = 'middle';
+            dctx.fillText(q, 60, 32);
+            drawDemoButton(178, 20, 44, 24, '定位', '#546E7A', t >= 6.8 && t <= 7.1);
+
+            // 符合畫面按鈕
+            drawDemoButton(242, 20, 74, 24, '符合畫面', '#1976D2', t >= 3.9 && t <= 4.2);
+
+            // 寬窄滑桿
+            const slideU = t < 1.0 ? 0 : (t < 2.8 ? easeInOutQuad((t - 1.0) / 1.8) : 1);
+            const spacingVal = Math.round(lerp(105, 58, slideU));
+            dctx.fillStyle = p.text;
+            dctx.fillText(`寬窄：${spacingVal}`, 340, 32);
+            dctx.strokeStyle = p.pillBorder;
+            dctx.lineWidth = 4;
+            dctx.beginPath();
+            dctx.moveTo(410, 32);
+            dctx.lineTo(520, 32);
+            dctx.stroke();
+            const knobX = lerp(505, 425, slideU);
+            dctx.fillStyle = '#1A73E8';
+            dctx.beginPath();
+            dctx.arc(knobX, 32, 7, 0, Math.PI * 2);
+            dctx.fill();
+
+            // 模擬 7 人寬家族受寬窄與縮放影響
+            const zoomU = t < 4.2 ? 1 : lerp(1, 0.84, easeOutCubic((t - 4.2) / 0.7));
+            const gap = lerp(102, 66, slideU);
+            const names = ['大姑', '二伯', '大叔', '爸爸', '媽媽', '大舅', '二舅'];
+            const genders = ['female', 'male', 'male', 'male', 'female', 'male', 'male'];
+            const startX = DEMO_W / 2 - ((names.length - 1) * gap) / 2;
+
+            dctx.save();
+            dctx.translate(DEMO_W / 2, 215);
+            dctx.scale(zoomU, zoomU);
+            dctx.translate(-DEMO_W / 2, -215);
+
+            const rowY = 165;
+            const nieceX = startX + 3.5 * gap;
+            const nieceY = 275;
+
+            drawDemoSpouseLine(startX + 3 * gap, rowY, startX + 4 * gap, rowY, 1);
+            drawDemoParentChild(startX + 3.5 * gap, rowY, [{ x: nieceX, y: nieceY }], 225, 1);
+            names.forEach((nm, i) => {
+                drawDemoNode(startX + i * gap, rowY, genders[i], nm);
+            });
+            drawDemoNode(nieceX, nieceY, 'female', '大姪女', {
+                stroke: t >= 7.1 ? '#D93025' : p.stroke
+            });
+
+            // 搜尋聚焦閃爍光圈
+            if (t >= 7.1) {
+                const pulse = 1 + Math.sin((t - 7.1) * 10) * 0.14;
+                dctx.save();
+                dctx.strokeStyle = '#FF9800';
+                dctx.lineWidth = 4;
+                dctx.setLineDash([5, 3]);
+                dctx.beginPath();
+                dctx.arc(nieceX, nieceY, (DEMO_R + 10) * pulse, 0, Math.PI * 2);
+                dctx.stroke();
+                dctx.restore();
+            }
+            dctx.restore();
+
+            if (t >= 7.1) {
+                drawDemoBanner('已定位至「大姪女」！（自動捲動置中並閃爍光圈）', '#E67E00', 60);
+            }
+
+            // 游標與字幕
+            if (t < 3.2) {
+                drawDemoCursor(knobX, 32, 0);
+                setDemoCaption('步驟 1', '大家族太寬時，往左拖動「寬窄」滑桿即可即時收窄間距（最低 45）');
+            } else if (t < 5.3) {
+                const u = easeInOutQuad(Math.min(1, (t - 3.2) / 0.7));
+                drawDemoCursor(lerp(knobX, 279, u), 32, t >= 3.9 && t < 4.25 ? (t - 3.9) / 0.35 : 0);
+                setDemoCaption('步驟 2', '點擊「符合畫面」，30~50 人的龐大家族也能自動縮放一眼看全貌');
+            } else {
+                const u = easeInOutQuad(Math.min(1, (t - 5.3) / 0.8));
+                drawDemoCursor(t < 6.5 ? lerp(279, 110, u) : 200, 32, t >= 6.8 && t < 7.15 ? (t - 6.8) / 0.35 : 0);
+                setDemoCaption('步驟 3', '在搜尋框輸入姓名按「定位」，立刻聚焦閃爍標示該位成員！');
+            }
+        }
+
+        // ==================== 劇本 5：親等路徑高亮 ＋ 顯示所有親屬關係與圖例 ====================
+        function renderSceneKinship(t) {
+            const p = getDemoPalette();
+            drawDemoBackground(p);
+
+            const nodes = {
+                gp: { x: 225, y: 92, g: 'male', name: '爺爺', dead: true },
+                gm: { x: 315, y: 92, g: 'female', name: '奶奶', dead: true },
+                dad: { x: 225, y: 192, g: 'male', name: '爸爸' },
+                mom: { x: 315, y: 192, g: 'female', name: '媽媽' },
+                me: { x: 185, y: 288, g: 'female', name: '我' },
+                bro: { x: 350, y: 288, g: 'male', name: '哥哥' },
+                sil: { x: 455, y: 288, g: 'female', name: '大嫂' }
+            };
+
+            drawDemoSpouseLine(nodes.gp.x, nodes.gp.y, nodes.gm.x, nodes.gm.y, 1);
+            drawDemoSpouseLine(nodes.dad.x, nodes.dad.y, nodes.mom.x, nodes.mom.y, 1);
+            drawDemoSpouseLine(nodes.bro.x, nodes.bro.y, nodes.sil.x, nodes.sil.y, 1);
+            drawDemoParentChild((nodes.gp.x + nodes.gm.x) / 2, nodes.gp.y, [nodes.dad], 146, 1);
+            drawDemoParentChild((nodes.dad.x + nodes.mom.x) / 2, nodes.dad.y, [nodes.me, nodes.bro], 244, 1);
+
+            function drawHighlightEdge(a, b, label, isSpouse, prog) {
+                if (prog <= 0) return;
+                const u = easeOutCubic(prog);
+                const col = isSpouse ? '#D81B60' : '#FF6D00';
+                dctx.save();
+                dctx.strokeStyle = col;
+                dctx.lineWidth = 4;
+                if (isSpouse) dctx.setLineDash([6, 4]);
+                dctx.beginPath();
+                dctx.moveTo(a.x, a.y);
+                dctx.lineTo(lerp(a.x, b.x, u), lerp(a.y, b.y, u));
+                dctx.stroke();
+                if (u > 0.65) {
+                    const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+                    dctx.setLineDash([]);
+                    dctx.fillStyle = col;
+                    dctx.beginPath();
+                    dctx.arc(mx, my, 10, 0, Math.PI * 2);
+                    dctx.fill();
+                    dctx.fillStyle = '#fff';
+                    dctx.font = 'bold 11px Arial, sans-serif';
+                    dctx.textAlign = 'center';
+                    dctx.textBaseline = 'middle';
+                    dctx.fillText(label, mx, my + 0.5);
+                }
+                dctx.restore();
+            }
+
+            if (t >= 1.4 && t < 4.5) {
+                drawHighlightEdge(nodes.me, nodes.dad, '1', false, (t - 1.4) / 0.5);
+                drawHighlightEdge(nodes.dad, nodes.gp, '2', false, (t - 2.0) / 0.5);
+                if (t >= 2.4) drawDemoBanner('我 → 爺爺：2親等直系血親（我 → 爸爸 → 爺爺）', '#E65100');
+            }
+
+            if (t >= 5.0 && t < 7.8) {
+                drawHighlightEdge(nodes.me, nodes.dad, '1', false, (t - 5.0) / 0.45);
+                drawHighlightEdge(nodes.dad, nodes.bro, '2', false, (t - 5.5) / 0.45);
+                drawHighlightEdge(nodes.bro, nodes.sil, '配', true, (t - 6.0) / 0.45);
+                if (t >= 6.3) drawDemoBanner('我 → 大嫂：2親等旁系姻親(血配)（我 → 爸爸 → 哥哥 ↔ 大嫂）', '#C2185B');
+            }
+
+            const showAll = t >= 8.0;
+            const relInfo = {
+                gp: { color: '#1565C0', lines: ['2親等直系血親'] },
+                gm: { color: '#1565C0', lines: ['2親等直系血親'] },
+                dad: { color: '#1565C0', lines: ['1親等直系血親'] },
+                mom: { color: '#1565C0', lines: ['1親等直系血親'] },
+                bro: { color: '#2E7D32', lines: ['2親等旁系血親'] },
+                sil: { color: '#C2185B', lines: ['2親等旁系姻親', '(血配)'] }
+            };
+
+            Object.entries(nodes).forEach(([k, n]) => {
+                let st = p.stroke, subLines = [], subColor = '';
+                if (k === 'me') st = '#D93025';
+                else if (showAll && relInfo[k]) {
+                    st = relInfo[k].color;
+                    subLines = relInfo[k].lines;
+                    subColor = relInfo[k].color;
+                } else if (k === 'gp' && t >= 1.2 && t < 4.5) st = '#1A73E8';
+                else if (k === 'sil' && t >= 4.8 && t < 7.8) st = '#1A73E8';
+                drawDemoNode(n.x, n.y, n.g, n.name, { stroke: st, dead: n.dead, subLines, subColor });
+            });
+
+            // 最後階段顯示右上角圖例卡片
+            if (showAll) {
+                drawDemoBanner('開啟「顯示所有親屬關係」＋「圖例」，長標籤自動兩行換行防重疊！', '#1A73E8');
+                drawDemoPanel(570, 62, 185, 130, '家系圖圖例');
+                const items = [
+                    ['#1565C0', '直系血親'],
+                    ['#2E7D32', '旁系血親'],
+                    ['#C2185B', '姻親(血配/配血)'],
+                    ['#ef6c00', '配偶']
+                ];
+                items.forEach(([c, lb], i) => {
+                    dctx.save();
+                    dctx.fillStyle = c;
+                    dctx.fillRect(584, 102 + i * 21, 10, 10);
+                    dctx.fillStyle = p.text;
+                    dctx.font = '12px "Microsoft JhengHei", Arial, sans-serif';
+                    dctx.textAlign = 'left';
+                    dctx.textBaseline = 'middle';
+                    dctx.fillText(lb, 600, 107 + i * 21);
+                    dctx.restore();
+                });
+            }
+
+            if (t < 1.4) {
+                const u = easeInOutQuad(t / 1.2);
+                drawDemoCursor(lerp(nodes.me.x, nodes.gp.x, u), lerp(nodes.me.y, nodes.gp.y, u), t >= 1.2 ? (t - 1.2) / 0.3 : 0);
+                setDemoCaption('步驟 1', '選取「我」開啟「關係親等」後點選「爺爺」');
+            } else if (t < 4.5) {
+                drawDemoCursor(nodes.gp.x, nodes.gp.y, 0);
+                setDemoCaption('步驟 2', '畫布即時用橘色粗線標出 1 → 2 步，一眼看懂「2親等直系血親」');
+            } else if (t < 7.8) {
+                const u = easeInOutQuad(Math.min(1, (t - 4.5) / 0.5));
+                drawDemoCursor(lerp(nodes.gp.x, nodes.sil.x, u), lerp(nodes.gp.y, nodes.sil.y, u), t >= 4.8 && t < 5.1 ? (t - 4.8) / 0.3 : 0);
+                setDemoCaption('步驟 3', '直接改點「大嫂」連續查詢：粉紅虛線「配」代表配偶不計親等');
+            } else {
+                setDemoCaption('步驟 4', '點擊「顯示所有親屬關係」與「圖例」，全體分色標示＋兩行換行超清晰！');
+            }
+        }
+
+        // ==================== 劇本 6：框選整批移動、雙擊解線與 Ctrl+Z 復原 ====================
+        function renderSceneBoxAndUnlink(t) {
+            const p = getDemoPalette();
+            drawDemoBackground(p);
+
+            const moveU = t < 2.4 ? 0 : easeInOutQuad((t - 2.4) / 1.3);
+            const dx = lerp(0, 165, moveU);
+            const dy = lerp(0, 15, moveU);
+
+            const dad = { x: 240 + dx, y: 135 + dy };
+            const mom = { x: 340 + dx, y: 135 + dy };
+            const kid = { x: 290 + dx, y: 250 + dy };
+
+            const spouseRemoved = t >= 5.8 && t < 7.8;
+            if (!spouseRemoved) {
+                drawDemoSpouseLine(dad.x, dad.y, mom.x, mom.y, 1);
+                drawDemoParentChild((dad.x + mom.x) / 2, dad.y, [kid], 195 + dy, 1);
+            } else {
+                drawDemoParentChild(dad.x, dad.y + DEMO_R, [kid], 195 + dy, 1);
+                drawDemoParentChild(mom.x, mom.y + DEMO_R, [kid], 195 + dy, 1);
+                drawDemoBanner('雙擊連線後，已解除「爸爸」與「媽媽」的配偶關係！', '#D93025');
+            }
+
+            if (t >= 7.8) {
+                drawDemoBanner('按下 Ctrl + Z（或點擊「復原」），連線瞬間還原！', '#1B5E20');
+            }
+
+            const isBoxSelected = t >= 1.5 && t < 4.1;
+            const nodeStroke = isBoxSelected ? '#7B1FA2' : p.stroke;
+            drawDemoNode(dad.x, dad.y, 'male', '爸爸', { stroke: nodeStroke });
+            drawDemoNode(mom.x, mom.y, 'female', '媽媽', { stroke: nodeStroke });
+            drawDemoNode(kid.x, kid.y, 'female', '我', { stroke: nodeStroke });
+
+            if (t >= 0.3 && t < 1.8) {
+                const u = easeOutCubic((t - 0.3) / 1.2);
+                const bx = 195, by = 92;
+                const bw = lerp(0, 195, u), bh = lerp(0, 205, u);
+                dctx.save();
+                dctx.fillStyle = 'rgba(26, 115, 232, 0.12)';
+                dctx.strokeStyle = '#1A73E8';
+                dctx.lineWidth = 1.6;
+                dctx.setLineDash([5, 4]);
+                dctx.fillRect(bx, by, bw, bh);
+                dctx.strokeRect(bx, by, bw, bh);
+                dctx.restore();
+                drawDemoCursor(bx + bw, by + bh, 0);
+                setDemoCaption('步驟 1', '開啟「框選」（或按住 Shift）拉出選取框，一次選取整個小家庭');
+            } else if (t < 4.0) {
+                const grabU = t < 2.4 ? easeInOutQuad((t - 1.8) / 0.5) : 1;
+                drawDemoCursor(t < 2.4 ? lerp(390, dad.x, grabU) : dad.x, t < 2.4 ? lerp(297, dad.y, grabU) : dad.y, 0);
+                setDemoCaption('步驟 2', '亮起紫框後拖曳任一成員，整組家庭會保持隊形一起平移');
+            } else if (t < 7.5) {
+                const lineMidX = (dad.x + mom.x) / 2, lineMidY = dad.y;
+                const u = easeInOutQuad(Math.min(1, (t - 4.0) / 1.1));
+                let ripple = 0;
+                if (t >= 5.2 && t < 5.55) ripple = (t - 5.2) / 0.35;
+                if (t >= 5.6 && t < 5.95) ripple = (t - 5.6) / 0.35;
+                drawDemoCursor(lerp(dad.x, lineMidX, u), lerp(dad.y, lineMidY, u), ripple);
+                setDemoCaption('步驟 3', '游標移至關係線上快速雙擊（點兩下），即可解除該段連線');
+            } else {
+                drawDemoButton(340, 52, 100, 26, 'Ctrl + Z 復原', '#1B5E20', t >= 7.6 && t <= 7.9);
+                setDemoCaption('步驟 4', '不小心刪錯也不用怕！按 Ctrl+Z（最多 50 步）立刻復原！');
+            }
+        }
+
+        // ==================== 劇本 7：手機平板觸控手勢 ＋ 下載 SVG 與一鍵分享 ====================
+        function renderSceneTouchAndShare(t) {
+            const p = getDemoPalette();
+            drawDemoBackground(p);
+
+            // 前半段（0~5.5s）：手機平板單指拖曳與雙指捏合縮放
+            if (t < 5.6) {
+                // 畫一個精緻平板邊框
+                dctx.save();
+                dctx.fillStyle = p.pillBg;
+                dctx.strokeStyle = p.pillBorder;
+                dctx.lineWidth = 2.5;
+                drawRoundRectPath(dctx, 185, 36, 410, 295, 18);
+                dctx.fill();
+                dctx.stroke();
+
+                dctx.fillStyle = p.bg;
+                drawRoundRectPath(dctx, 200, 56, 380, 255, 8);
+                dctx.fill();
+
+                dctx.save();
+                dctx.beginPath();
+                drawRoundRectPath(dctx, 200, 56, 380, 255, 8);
+                dctx.clip();
+
+                const dragU = t < 2.2 ? easeInOutQuad(Math.max(0, (t - 0.5) / 1.4)) : 1;
+                const pinchU = t < 2.8 ? 0 : easeInOutQuad(Math.min(1, (t - 2.8) / 1.6));
+                const scale = lerp(1, 0.72, pinchU);
+
+                dctx.translate(390, 185);
+                dctx.scale(scale, scale);
+                dctx.translate(-390, -185);
+
+                const dad = { x: lerp(310, 355, dragU), y: lerp(135, 125, dragU) };
+                const mom = { x: 455, y: 125 };
+                const me = { x: 405, y: 235 };
+                drawDemoSpouseLine(dad.x, dad.y, mom.x, mom.y, 1);
+                drawDemoParentChild((dad.x + mom.x) / 2, dad.y, [me], 185, 1);
+                drawDemoNode(dad.x, dad.y, 'male', '爸爸', { stroke: t >= 0.4 && t < 2.3 ? '#D93025' : p.stroke });
+                drawDemoNode(mom.x, mom.y, 'female', '媽媽');
+                drawDemoNode(me.x, me.y, 'female', '我');
+                dctx.restore();
+
+                // 觸控手指圖示
+                if (t < 2.4) {
+                    drawTouchFinger(lerp(310, 355, dragU), lerp(135, 125, dragU), true);
+                    setDemoCaption('步驟 1', '手機／平板觸控：單指按住角色直接拖曳移動，空白處滑動可平移視野');
+                } else {
+                    const f1x = lerp(295, 345, pinchU), f1y = lerp(120, 165, pinchU);
+                    const f2x = lerp(485, 435, pinchU), f2y = lerp(250, 205, pinchU);
+                    drawTouchFinger(f1x, f1y, true);
+                    drawTouchFinger(f2x, f2y, true);
+                    drawDemoBanner(`雙指捏合縮放：${Math.round(scale * 100)}%`, '#1976D2', 14);
+                    setDemoCaption('步驟 2', '兩指在畫布上捏合即可流暢縮放畫布，平板上課畫圖超順手！');
+                }
+                dctx.restore();
+            } else {
+                // 後半段（5.6~10s）：下載 PNG / SVG 與一鍵分享連結
+                const u = t - 5.6;
+                drawDemoButton(220, 48, 130, 30, '下載圖片 / SVG', '#7B1FA2', u >= 0.4 && u <= 0.7);
+                drawDemoButton(375, 48, 110, 30, '分享連結', '#3949AB', u >= 2.4 && u <= 2.7);
+                drawDemoButton(510, 48, 95, 30, '匯出 JSON', '#D81B60', false);
+
+                if (u >= 0.7 && u < 2.4) {
+                    drawDemoPanel(215, 96, 330, 140, '下載圖片 / 向量圖');
+                    dctx.save();
+                    dctx.fillStyle = p.text;
+                    dctx.font = '12.5px "Microsoft JhengHei", Arial, sans-serif';
+                    dctx.textAlign = 'left';
+                    dctx.textBaseline = 'middle';
+                    dctx.fillText('☑ 自動緊貼裁切多餘白邊（不留浪費空白）', 230, 148);
+                    dctx.restore();
+                    drawDemoButton(230, 180, 86, 28, 'PNG 白底', '#1976D2', false);
+                    drawDemoButton(326, 180, 86, 28, 'PNG 透明', '#1976D2', false);
+                    drawDemoButton(422, 180, 108, 28, 'SVG 向量圖', '#7B1FA2', u >= 1.5 && u <= 1.8);
+                    drawDemoCursor(lerp(285, 476, easeInOutQuad(Math.min(1, (u - 0.7) / 0.8))), lerp(63, 194, easeInOutQuad(Math.min(1, (u - 0.7) / 0.8))), u >= 1.5 && u < 1.85 ? (u - 1.5) / 0.35 : 0);
+                    setDemoCaption('步驟 3', '可下載自動裁切白邊的 PNG，或放簡報／印考卷無限放大不模糊的 SVG！');
+                } else {
+                    drawDemoPanel(195, 112, 390, 118, '一鍵網址分享（免傳檔案）');
+                    dctx.save();
+                    dctx.textAlign = 'left';
+                    dctx.textBaseline = 'middle';
+                    dctx.fillStyle = p.pillBg;
+                    dctx.strokeStyle = '#3949AB';
+                    dctx.lineWidth = 1.2;
+                    dctx.fillRect(212, 152, 356, 28);
+                    dctx.strokeRect(212, 152, 356, 28);
+                    dctx.fillStyle = '#3949AB';
+                    dctx.font = '12px Consolas, monospace';
+                    dctx.fillText('https://.../family-tree/#data=z:eJx9U1t...', 220, 166.5);
+                    dctx.fillStyle = '#2E7D32';
+                    dctx.font = 'bold 12.5px "Microsoft JhengHei", Arial, sans-serif';
+                    dctx.fillText('✔ 已複製連結！貼給學生或家人點開即可直接載入檢視', 212, 202);
+                    dctx.restore();
+                    drawDemoCursor(430, 63, u >= 2.4 && u < 2.75 ? (u - 2.4) / 0.35 : 0);
+                    setDemoCaption('步驟 4', '點「分享連結」自動壓縮整張家族樹進網址，免傳 JSON 檔直接分享！');
+                }
+            }
+        }
+
+        const SCENE_RENDERERS = [
+            renderSceneAddEditStatus,
+            renderSceneQuickBuild,
+            renderSceneSpecialRelations,
+            renderSceneAutoAlign,
+            renderSceneZoomSpacingSearch,
+            renderSceneKinship,
+            renderSceneBoxAndUnlink,
+            renderSceneTouchAndShare
+        ];
+
+        function setDemoCaption(step, text) {
+            demoStepBadge.textContent = step;
+            demoCaptionText.textContent = text;
+        }
+
+        function updateDemoTabsUI() {
+            document.querySelectorAll('.demo-tab-btn').forEach(btn => {
+                btn.classList.toggle('active', Number(btn.dataset.scene) === currentScene);
+            });
+            demoSceneCounter.textContent = `劇本 ${currentScene + 1} / ${SCENE_RENDERERS.length}`;
+        }
+
+        function selectDemoScene(index) {
+            currentScene = (index + SCENE_RENDERERS.length) % SCENE_RENDERERS.length;
+            sceneTime = 0;
+            updateDemoTabsUI();
+            if (!demoPlaying) renderCurrentDemoFrame();
+        }
+
+        function stepDemoScene(delta) {
+            selectDemoScene(currentScene + delta);
+        }
+
+        function restartDemoScene() {
+            sceneTime = 0;
+            demoPlaying = true;
+            demoPlayBtn.innerHTML = '<i class="fas fa-pause"></i> 暫停';
+            renderCurrentDemoFrame();
+        }
+
+        function toggleDemoPlay() {
+            demoPlaying = !demoPlaying;
+            demoPlayBtn.innerHTML = demoPlaying
+                ? '<i class="fas fa-pause"></i> 暫停'
+                : '<i class="fas fa-play"></i> 播放';
+        }
+
+        // 點擊進度條可自由跳轉動畫時間
+        demoProgressBar.addEventListener('click', (e) => {
+            const rect = demoProgressBar.getBoundingClientRect();
+            const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            sceneTime = ratio * SCENE_DURATIONS[currentScene];
+            renderCurrentDemoFrame();
+        });
+
+        function renderCurrentDemoFrame() {
+            const dur = SCENE_DURATIONS[currentScene];
+            demoProgressFill.style.width = `${Math.min(100, (sceneTime / dur) * 100)}%`;
+            SCENE_RENDERERS[currentScene](sceneTime);
+        }
+
+        function demoLoop(ts) {
+            if (lastFrameTs === null) lastFrameTs = ts;
+            const dt = Math.min(0.1, (ts - lastFrameTs) / 1000);
+            lastFrameTs = ts;
+
+            if (demoPlaying) {
+                sceneTime += dt;
+                const dur = SCENE_DURATIONS[currentScene];
+                if (sceneTime >= dur) {
+                    sceneTime = 0;
+                    if (demoAutoNext.checked) {
+                        currentScene = (currentScene + 1) % SCENE_RENDERERS.length;
+                        updateDemoTabsUI();
+                    }
+                }
+            }
+            renderCurrentDemoFrame();
+            requestAnimationFrame(demoLoop);
+        }
+        updateDemoTabsUI();
+        requestAnimationFrame(demoLoop);
+
+        // ==================== 吉祥物自由拖曳與點擊粒子特效 ====================
+        const mascotElement = document.getElementById('mascot');
+
+        function createParticle(x, y) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            document.body.appendChild(particle);
+
+            const size = Math.floor(Math.random() * 10 + 5);
+            const colors = ['#8B4513', '#D93025', '#E67E00', '#2E8B57', '#1B5E20', '#1A73E8', '#7B1FA2', '#D81B60'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.background = color;
+            particle.style.left = `${x - size / 2}px`;
+            particle.style.top = `${y - size / 2}px`;
+
+            const destinationX = (Math.random() - 0.5) * 300;
+            const destinationY = (Math.random() - 0.5) * 300;
+            const rotation = Math.random() * 520;
+
+            requestAnimationFrame(() => {
+                particle.style.transform = `translate(${destinationX}px, ${destinationY}px) rotate(${rotation}deg)`;
+                particle.style.opacity = '0';
+            });
+
+            setTimeout(() => {
+                particle.remove();
+            }, 1000);
+        }
+
+        let mascotDragging = false;
+        let mascotMoved = false;
+        let mascotPointerId = null;
+        let mascotOffsetX = 0;
+        let mascotOffsetY = 0;
+        let mascotStartX = 0;
+        let mascotStartY = 0;
+
+        mascotElement.addEventListener('pointerdown', (e) => {
+            if (e.button !== undefined && e.button !== 0 && e.pointerType === 'mouse') return;
+            e.preventDefault();
+            mascotDragging = true;
+            mascotMoved = false;
+            mascotPointerId = e.pointerId;
+            const rect = mascotElement.getBoundingClientRect();
+            mascotOffsetX = e.clientX - rect.left;
+            mascotOffsetY = e.clientY - rect.top;
+            mascotStartX = e.clientX;
+            mascotStartY = e.clientY;
+            mascotElement.classList.add('dragging');
+            if (mascotElement.setPointerCapture) {
+                try { mascotElement.setPointerCapture(e.pointerId); } catch (_) {}
+            }
+        });
+
+        window.addEventListener('pointermove', (e) => {
+            if (!mascotDragging || e.pointerId !== mascotPointerId) return;
+            e.preventDefault();
+            if (!mascotMoved && Math.hypot(e.clientX - mascotStartX, e.clientY - mascotStartY) > 5) {
+                mascotMoved = true;
+            }
+            if (mascotMoved) {
+                const maxLeft = Math.max(0, window.innerWidth - mascotElement.offsetWidth);
+                const maxTop = Math.max(0, window.innerHeight - mascotElement.offsetHeight);
+                mascotElement.style.left = `${Math.max(0, Math.min(e.clientX - mascotOffsetX, maxLeft))}px`;
+                mascotElement.style.top = `${Math.max(0, Math.min(e.clientY - mascotOffsetY, maxTop))}px`;
+                mascotElement.style.bottom = 'auto';
+                mascotElement.style.right = 'auto';
+            }
+        });
+
+        const endMascotDrag = (e) => {
+            if (!mascotDragging || (mascotPointerId !== null && e.pointerId !== mascotPointerId)) return;
+            const wasClick = !mascotMoved;
+            mascotDragging = false;
+            mascotMoved = false;
+            mascotPointerId = null;
+            mascotElement.classList.remove('dragging');
+            if (wasClick) {
+                for (let i = 0; i < 30; i++) {
+                    createParticle(e.clientX, e.clientY);
+                }
+            }
+        };
+
+        window.addEventListener('pointerup', endMascotDrag);
+        window.addEventListener('pointercancel', endMascotDrag);
+
+        window.addEventListener('resize', () => {
+            if (mascotElement.style.top) {
+                const maxLeft = Math.max(0, window.innerWidth - mascotElement.offsetWidth);
+                const maxTop = Math.max(0, window.innerHeight - mascotElement.offsetHeight);
+                const currLeft = parseFloat(mascotElement.style.left) || 0;
+                const currTop = parseFloat(mascotElement.style.top) || 0;
+                mascotElement.style.left = `${Math.max(0, Math.min(currLeft, maxLeft))}px`;
+                mascotElement.style.top = `${Math.max(0, Math.min(currTop, maxTop))}px`;
+            }
+        });
+    </script>
+</body>
+</html>
